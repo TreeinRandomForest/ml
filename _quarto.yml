@@ -1,0 +1,25 @@
+project:
+  type: website
+
+website:
+  description: "Experiments with ML and Systems"
+  site-url: https://treeinrandomforest.github.io/ml # you must change this appropriately for RSS feeds to work properly
+  title: "Discovery"
+  navbar:
+    right:
+      - about.qmd
+      - icon: github
+        href: https://github.com/
+      - icon: bluesky
+        href: https://bsky.app/
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    css: styles.css
+
+execute:
+  freeze: auto
+
+
