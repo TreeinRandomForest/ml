@@ -9,8 +9,8 @@
 <link>https://treeinrandomforest.github.io/ml/</link>
 <atom:link href="https://treeinrandomforest.github.io/ml/index.xml" rel="self" type="application/rss+xml"/>
 <description>Experiments with ML and Systems</description>
-<generator>quarto-1.9.36</generator>
-<lastBuildDate>Mon, 04 May 2026 04:00:00 GMT</lastBuildDate>
+<generator>quarto-1.9.37</generator>
+<lastBuildDate>Mon, 04 May 2026 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Post With Code</title>
   <dc:creator>Harlow Malloc</dc:creator>
@@ -30,7 +30,7 @@
   <category>code</category>
   <category>analysis</category>
   <guid>https://treeinrandomforest.github.io/ml/posts/post-with-code/</guid>
-  <pubDate>Mon, 04 May 2026 04:00:00 GMT</pubDate>
+  <pubDate>Mon, 04 May 2026 00:00:00 GMT</pubDate>
   <media:content url="https://treeinrandomforest.github.io/ml/posts/post-with-code/image.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
@@ -52,7 +52,7 @@
  ]]></description>
   <category>news</category>
   <guid>https://treeinrandomforest.github.io/ml/posts/welcome/</guid>
-  <pubDate>Fri, 01 May 2026 04:00:00 GMT</pubDate>
+  <pubDate>Fri, 01 May 2026 00:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>
