@@ -1,5 +1,5 @@
 ---
-title: "Reinforcement Learning Reading Group #1"
+title: "Reinforcement Learning Reading Group #1 - Prerequisites"
 date: "2026-05-18"
 categories: [rl, reading group, mdp]
 ---
@@ -56,5 +56,140 @@ We can put this all together to define the following decision-making process:
 
 * Use a given policy to make a decision: $a_0 = \pi(a_0 | s_0)$. [Caveat below]
 
-* Taking an action will change the state
+* Taking an action will change the state. In the car driving example, if the state is what you see and the action is "turn left by 10 degrees", what you see will change after the action is taken. The new state is $s_1$.
+
+* Use the policy to make the next decision: $a_1 = \pi(a_1 | s_1)$.
+
+* Continue this loop till some stopping criterion (destination reached).
+
+The two new ingredients in the decision-making process ("decision process" for short) are the change in state after an action and the stopping criterion.
+
+#### State changes
+
+In any circumstance, performing an action will change the state. In general, this is a probabilistic change. In the car driving example, while our action will change what we see, so will the actions of other drivers. Even if we were to start at the same state (stopped at a red light at an intersection with no visible cars) and were to take the same action (press throttle at 50%), we'll generally land in different new states depending on other cars that show up on the road.
+
+The change in state is formalized by a new quantity called the **transition probability** or **transition function** denoted by:
+
+$$p(s_{t+1} | s_t, a_t)$$
+
+or sometimes as:
+
+$$p(s' | s, a)$$
+
+This is to be read as "the probability of state at time t+1, $s_{t+1}$ given the state at time t, $s_t$ and action taken at time t, $a_t$" or "the probability of next state $s'$ given current state $s$ and current action $a$.
+
+The transition function computes the probability of every new state $s'$. The actual new state is sampled from this function. **This function is generally not known in advance**. It is a property of the circumstance/environment one is in and in the car driving case, subsume all laws of physics, rules of the road, behaviors of other drivers etc.
+
+There is a crucial assumption in defining the transition function this way. We wrote:
+
+$$p(s_{t+1} | s_t, a_t)$$
+
+and not
+
+$$p(s_{t+1} | s_t, a_t, s_{t-1}, a_{t-1})$$
+
+or
+
+$$p(s_{t+1} | s_t, a_t, s_{t-1}, a_{t-1}, \ldots, s_{t-k}, a_{t-k})$$
+
+for some k e.g. k = 5.
+
+The probability of picking a new state only depends on the current state ($s_t$) and the current action ($a_t$). The history of how one got to $s_t$ doesn't matter and the past actions don't matter. This is a simplifying assumption and is known as the **Markov property**. In practice, it is hard to establish if a decision process is truly Markovian. As we'll see (in the Atari paper), one might have to extend the definition of state to make a process Markovian. Usually, one starts with a state definition and "bad performance" indicates that the state definition might be insufficiently informative which leads to adding more features.
+
+#### Stopping criterion
+
+Eventually, we want to stop the loop of state-action tuples. This is usually done in one of three ways:
+
+* A budget of how many steps to do this for.
+
+* No fixed budget - instead of runs till a goal is reached. 
+
+* One can technically also run forever in an online manner.
+
+
+Let's recap the questions:
+
+* What do mean by "a given circumstance"? As an example, think of driving a car as the circumstance or task.
+
+* What is a decision? In the example, "braking", "steering left by 10 degrees", "steering right by 10 degrees", "accelerator at 50%" could be some decisions.
+
+* How frequently do decision need to be made? One decision every 1 second would be too infrequent since a car at 60mph (~100kph) travels ~28m (~90 feet) in that time.
+
+* Given a sequence of already picked decisions, how do we evaluate the quality of the sequence? Alternately, what makes us prefer one sequence of decisions over another sequence?
+
+We have answered most of these questions.
+
+* By circumstance, we mean an **environment** which costs of a state-space $\mathcal{S}$, action-space $\mathcal{A}$, a transition function $p(s' | s, a)$.
+
+* Decisions or actions are chosen from the action space $\mathcal{A}$. Their effects are encapsulated by the transition function.
+
+* Time is discrete and ticks at some regular frequency. For us, it's just a natural number.
+
+The last question hasn't been answered yet. Consider two **trajectories** (sequences of alternating states and actions):
+
+$$\tau^{(1)} = s^{(1)}_0 \rightarrow a^{(1)}_0 \rightarrow s^{(1)}_1 \rightarrow s^{(1)}_2 \rightarrow \ldots $$
+
+and
+
+$$\tau^{(2)} = s^{(2)}_0 \rightarrow a^{(2)}_0 \rightarrow s^{(2)}_1 \rightarrow s^{(2)}_2 \rightarrow \ldots $$
+
+Note: $\tau$ ("tau") is the Greek "t" (for trajectory).
+
+The super-script indicates which trajectory we are talking about. Each trajectory starts in potentially a different state ($s^{(i)}_0$). Once an action is taken, the environments transitions to a different state according to the transition function.
+
+Do we prefer one trajectory over another? Concretely, if each trajectory described one car driving trip, should we pick one over the other?
+
+This notion of preference is made concrete by defining a **reward function**. 
+
+#### Reward Function
+
+Given any state $s$ and an action $a$, the reward function $r(s,a)$ is a number (any real number). So, we have a sequence of rewards for any trajectory e.g. $r(s^{(i)}_0, a^{(i)}_0), r(s^{(i)}_1, a^{(i)}_1), r(s^{(i)}_2, a^{(i)}_2), \ldots$ and so on for each consecutive state-action pair.
+
+The reward for the full trajectory is defined to be a simple sum of rewards:
+
+$R(\tau) = r(s_0, a_0) + r(s_1, a_1) + r(s_2, a_2) + \ldots = \Sigma_{i=0}^{T} r(s_t, a_t)$
+
+**Notational note**: $\Sigma_{i=1}^{T} is notational shortcut for the sum as $i$ goes from 0 to $T$ in steps of 1. $T$ can be $\infty$ or a fixed finite number or a varying finite number, as we discussed before.
+
+Now, we have a clear way of ranking trajectories. We prefer trajectories with higher sum-of-rewards $R(\tau)$. Usually, instead of saying "sum-of-rewards", one says just "reward" where it's clear from context whether one is talking about $R(\tau)$ or individual per-time-step rewards $r(s_t, a_t)$.
+
+This definition has an interesting consequence. We don't just care about maximizing rewards at individual time-steps. By maximizing $R(\tau)$, we are forced to consider all time-steps i.e. to look at long-term behavior. In the car driving example, the trajectory level reward can be the total time to go from point A (initial state) to point B (final state). It might be tempting to cut across a median to drive in a straight line and thus minimize time, but this short-term thinking might lead to (a) getting pulled over by cops, (b) the car getting stuck in grass, (c) damaging the car on uneven surfaces, all of which would lead to worse long-term consequences.
+
+In the case where one has arbitrarily long trajectories ($T \rightarrow \infty$), there's another wrinkle - the total reward series (sum of terms) might not converge.
+
+For example,
+
+$$1 + 0.9 + 0.9^2 + 0.9^3 + \ldots = 10$$
+
+The series **converges** to a finite value.
+
+On the other hand,
+
+$$1 + 1.1 + 1.1^2 + 1.1^3 + \ldots = \infty$$
+
+This series **diverges** i.e. if you keep adding more terms, the answer gets larger in an unbounded way. This is the famous geometric series:
+
+$$1 + r + r^2 + r^3 \ldots = \frac{1}{1-r} $$
+
+if and only if $-1 < r < 1$. For any other r, the left-hand side diverges.
+
+To ensure $R(\tau)$ is finite, one inserts a **discount factor**, $\gamma$ ("gamma" - Greek 'g'), which is a number between 0 and 1 (exclusive of end-points) or formally $\gamma \in (0,1)$ to get:
+
+$$R(\tau) = r(s_0, a_0) + \gamma r(s_1, a_1) + \gamma^2 r(s_2, a_2) + \ldots = \Sigma_{i=0}^{\infty} \gamma^t r(s_t, a_t)$$
+
+Technical note: If $r(s, a)$ is bounded (values lie between some min and max values), inserting $\gamma$ ensures $R(\tau)$ converges.
+
+There's a more "physical" interpretation of gamma. A reward of \$100 today is preferrable to a reward of \$100 in one year. A reward of \$100 today could be invested in a risk-free asset (a savings account or 1-year treasury bills) at say 3\% to get \$103 in a year vs \$100 a year later. In other words, a reward of \$100 in one year is effectively \$100/1.03 ~ 97 cents today (since if you invested this at 3%, you would get exactly \$100 next year). $\gamma$ is a reflection of this time-value of reward. $\gamma = 0.97$ would signify a 3% risk-free interest rate.
+
+We now have a full formal setup. Reiterating,
+
+* By circumstance, we mean an **environment** which costs of a state-space $\mathcal{S}$, action-space $\mathcal{A}$, a transition function $p(s' | s, a)$.
+
+* Decisions or actions are chosen from the action space $\mathcal{A}$. Their effects are encapsulated by the transition function.
+
+* Time is discrete and ticks at some regular frequency. For us, it's just a natural number.
+
+* Trajectories are sequences of consecutive state-action tuples. For each (state, action) tuple (s,a), one can compute a reward $r(s,a)$. Sums of rewards (with potential discount factors) define a trajectory-level reward. Higher-reward trajectories are preferred. In reality, the definition of $r(s,a)$ is up to us and the problem. Maximizing sum-of-rewards incentivizes long-term behavior.
+
+
 
