@@ -1,0 +1,60 @@
+---
+title: "Reinforcement Learning Reading Group #1"
+date: "2026-05-18"
+categories: [rl, reading group, mdp]
+---
+
+This is hopefully the first of a series of write-ups for a group of engineers ramping up on RL. We will be reading papers and implementing a subset from the [Spinning up RL](https://spinningup.openai.com/en/latest/spinningup/keypapers.html) list.
+
+There is no shortage of great resources on RL but the goal here is to write the simplest description of concepts and code for our group.
+
+### Formal Setup for RL
+
+The central question is how to make a sequence of decisions in a given circumstance. The rest of this write-up makes this question more formal.
+
+We need to define the following:
+
+* What do mean by "a given circumstance"? As an example, think of driving a car as the circumstance or task.
+
+* What is a decision? In the example, "braking", "steering left by 10 degrees", "steering right by 10 degrees", "accelerator at 50%" could be some decisions.
+
+* How frequently do decision need to be made? One decision every 1 second would be too infrequent since a car at 60mph (~100kph) travels ~28m (~90 feet) in that time. 
+
+* Given a sequence of already picked decisions, how do we evaluate the quality of the sequence? Alternately, what makes us prefer one sequence of decisions over another sequence?
+
+The rest of this write-up answers and formalizes the questions above. This formalization provides the basic framework for all the RL papers we'll read.
+
+#### Decisions or Actions
+
+The easiest object to define is the decision-space (generally known as the **action-space**), $\mathcal{A}$, which is simply the set of all possible decisions/**actions** that can be executed.
+
+#### States
+
+To make a decision, one first needs some input information. In the car driving example, we make decisions based on what we see and possibly what we hear, on latent/hidden information about our purpose for driving ("going to the local park") and on latent/hidden information about our mood (driving rashly when angry or driving slow when on a leisure drive). One can add more features like the state of the car. If the front-wheels are misaligned, a driver will correct the bias with the steering.
+
+All input information is formalized by defining a vector of quantities/numbers. This vector is known as the **state** and is chosen from a set called the **state-space**, $\mathcal{S}.
+
+#### Policy
+
+Since a state is used as input information to make a decision, we need a way to map states to actions. This map is called the **policy** and denoted by $\pi$ ("pi" - the 'p' in Greek). One often writes:
+
+$$\pi: \mathcal{S}\rightarrow\mathcal{A}$$
+
+to denote that $\pi$ is a function that takes an element (state or state-vector) of the state-space and maps it to one element (action) of the action-space.
+
+You'll also see: $\pi(a | s)$ which is to be read as "the action a taken by $\pi$ given the state s as the input". This is also written as $\pi: s \mapsto a$ (note the different arrow with a vertical bar on the left).
+
+#### Frequency of decision-making
+
+Decisions are made across 1-dimensional time. In RL, continuous time is approximated by discretization i.e. time is assumed to tick at a constant clock-rate. For computers, this maps well since there's an underlying clock that defines discrete time. Concretely, time is just a sequence $1, 2, 3, \ldots$.
+
+#### Decision Process
+
+We can put this all together to define the following decision-making process:
+
+* Start with initial state $s_0$ (observe the surroundings).
+
+* Use a given policy to make a decision: $a_0 = \pi(a_0 | s_0)$. [Caveat below]
+
+* Taking an action will change the state
+
