@@ -29,7 +29,6 @@ comments:
     category: "Announcements"
     category-id: "DIC_kwDOSTRqcs4C9Uu8"
     mapping: "pathname"
-    strict: false
     reactions-enabled: true
     emit-metadata: true 
     input-position: "bottom"
