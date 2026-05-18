@@ -149,7 +149,7 @@ The reward for the full trajectory is defined to be a simple sum of rewards:
 
 $R(\tau) = r(s_0, a_0) + r(s_1, a_1) + r(s_2, a_2) + \ldots = \Sigma_{i=0}^{T} r(s_t, a_t)$
 
-**Notational note**: $\Sigma_{i=1}^{T} is notational shortcut for the sum as $i$ goes from 0 to $T$ in steps of 1. $T$ can be $\infty$ or a fixed finite number or a varying finite number, as we discussed before.
+**Notational note**: $\Sigma_{i=1}^{T}$ is notational shortcut for the sum as $i$ goes from 0 to $T$ in steps of 1. $T$ can be $\infty$ or a fixed finite number or a varying finite number, as we discussed before.
 
 Now, we have a clear way of ranking trajectories. We prefer trajectories with higher sum-of-rewards $R(\tau)$. Usually, instead of saying "sum-of-rewards", one says just "reward" where it's clear from context whether one is talking about $R(\tau)$ or individual per-time-step rewards $r(s_t, a_t)$.
 
