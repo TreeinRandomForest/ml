@@ -30,6 +30,5 @@ comments:
     category-id: "DIC_kwDOSTRqcs4C9Uu8"
     mapping: "pathname"
     reactions-enabled: true
-    emit-metadata: true 
     input-position: "bottom"
     theme: "light"
