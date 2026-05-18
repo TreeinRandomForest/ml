@@ -12,7 +12,7 @@
 <generator>quarto-1.9.37</generator>
 <lastBuildDate>Mon, 18 May 2026 00:00:00 GMT</lastBuildDate>
 <item>
-  <title>Reinforcement Learning Reading Group #1</title>
+  <title>Reinforcement Learning Reading Group #1 - Prerequisites</title>
   <link>https://treeinrandomforest.github.io/ml/posts/rl1-intro/</link>
   <description><![CDATA[ 
 
@@ -59,7 +59,87 @@
 <ul>
 <li><p>Start with initial state <img src="https://latex.codecogs.com/png.latex?s_0"> (observe the surroundings).</p></li>
 <li><p>Use a given policy to make a decision: <img src="https://latex.codecogs.com/png.latex?a_0%20=%20%5Cpi(a_0%20%7C%20s_0)">. [Caveat below]</p></li>
-<li><p>Taking an action will change the state</p></li>
+<li><p>Taking an action will change the state. In the car driving example, if the state is what you see and the action is “turn left by 10 degrees”, what you see will change after the action is taken. The new state is <img src="https://latex.codecogs.com/png.latex?s_1">.</p></li>
+<li><p>Use the policy to make the next decision: <img src="https://latex.codecogs.com/png.latex?a_1%20=%20%5Cpi(a_1%20%7C%20s_1)">.</p></li>
+<li><p>Continue this loop till some stopping criterion (destination reached).</p></li>
+</ul>
+<p>The two new ingredients in the decision-making process (“decision process” for short) are the change in state after an action and the stopping criterion.</p>
+</section>
+<section id="state-changes" class="level4">
+<h4 class="anchored" data-anchor-id="state-changes">State changes</h4>
+<p>In any circumstance, performing an action will change the state. In general, this is a probabilistic change. In the car driving example, while our action will change what we see, so will the actions of other drivers. Even if we were to start at the same state (stopped at a red light at an intersection with no visible cars) and were to take the same action (press throttle at 50%), we’ll generally land in different new states depending on other cars that show up on the road.</p>
+<p>The change in state is formalized by a new quantity called the <strong>transition probability</strong> or <strong>transition function</strong> denoted by:</p>
+<p><img src="https://latex.codecogs.com/png.latex?p(s_%7Bt+1%7D%20%7C%20s_t,%20a_t)"></p>
+<p>or sometimes as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?p(s'%20%7C%20s,%20a)"></p>
+<p>This is to be read as “the probability of state at time t+1, <img src="https://latex.codecogs.com/png.latex?s_%7Bt+1%7D"> given the state at time t, <img src="https://latex.codecogs.com/png.latex?s_t"> and action taken at time t, <img src="https://latex.codecogs.com/png.latex?a_t">” or “the probability of next state <img src="https://latex.codecogs.com/png.latex?s'"> given current state <img src="https://latex.codecogs.com/png.latex?s"> and current action <img src="https://latex.codecogs.com/png.latex?a">.</p>
+<p>The transition function computes the probability of every new state <img src="https://latex.codecogs.com/png.latex?s'">. The actual new state is sampled from this function. <strong>This function is generally not known in advance</strong>. It is a property of the circumstance/environment one is in and in the car driving case, subsume all laws of physics, rules of the road, behaviors of other drivers etc.</p>
+<p>There is a crucial assumption in defining the transition function this way. We wrote:</p>
+<p><img src="https://latex.codecogs.com/png.latex?p(s_%7Bt+1%7D%20%7C%20s_t,%20a_t)"></p>
+<p>and not</p>
+<p><img src="https://latex.codecogs.com/png.latex?p(s_%7Bt+1%7D%20%7C%20s_t,%20a_t,%20s_%7Bt-1%7D,%20a_%7Bt-1%7D)"></p>
+<p>or</p>
+<p><img src="https://latex.codecogs.com/png.latex?p(s_%7Bt+1%7D%20%7C%20s_t,%20a_t,%20s_%7Bt-1%7D,%20a_%7Bt-1%7D,%20%5Cldots,%20s_%7Bt-k%7D,%20a_%7Bt-k%7D)"></p>
+<p>for some k e.g.&nbsp;k = 5.</p>
+<p>The probability of picking a new state only depends on the current state (<img src="https://latex.codecogs.com/png.latex?s_t">) and the current action (<img src="https://latex.codecogs.com/png.latex?a_t">). The history of how one got to <img src="https://latex.codecogs.com/png.latex?s_t"> doesn’t matter and the past actions don’t matter. This is a simplifying assumption and is known as the <strong>Markov property</strong>. In practice, it is hard to establish if a decision process is truly Markovian. As we’ll see (in the Atari paper), one might have to extend the definition of state to make a process Markovian. Usually, one starts with a state definition and “bad performance” indicates that the state definition might be insufficiently informative which leads to adding more features.</p>
+</section>
+<section id="stopping-criterion" class="level4">
+<h4 class="anchored" data-anchor-id="stopping-criterion">Stopping criterion</h4>
+<p>Eventually, we want to stop the loop of state-action tuples. This is usually done in one of three ways:</p>
+<ul>
+<li><p>A budget of how many steps to do this for.</p></li>
+<li><p>No fixed budget - instead of runs till a goal is reached.</p></li>
+<li><p>One can technically also run forever in an online manner.</p></li>
+</ul>
+<p>Let’s recap the questions:</p>
+<ul>
+<li><p>What do mean by “a given circumstance”? As an example, think of driving a car as the circumstance or task.</p></li>
+<li><p>What is a decision? In the example, “braking”, “steering left by 10 degrees”, “steering right by 10 degrees”, “accelerator at 50%” could be some decisions.</p></li>
+<li><p>How frequently do decision need to be made? One decision every 1 second would be too infrequent since a car at 60mph (~100kph) travels ~28m (~90 feet) in that time.</p></li>
+<li><p>Given a sequence of already picked decisions, how do we evaluate the quality of the sequence? Alternately, what makes us prefer one sequence of decisions over another sequence?</p></li>
+</ul>
+<p>We have answered most of these questions.</p>
+<ul>
+<li><p>By circumstance, we mean an <strong>environment</strong> which costs of a state-space <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BS%7D">, action-space <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BA%7D">, a transition function <img src="https://latex.codecogs.com/png.latex?p(s'%20%7C%20s,%20a)">.</p></li>
+<li><p>Decisions or actions are chosen from the action space <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BA%7D">. Their effects are encapsulated by the transition function.</p></li>
+<li><p>Time is discrete and ticks at some regular frequency. For us, it’s just a natural number.</p></li>
+</ul>
+<p>The last question hasn’t been answered yet. Consider two <strong>trajectories</strong> (sequences of alternating states and actions):</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctau%5E%7B(1)%7D%20=%20s%5E%7B(1)%7D_0%20%5Crightarrow%20a%5E%7B(1)%7D_0%20%5Crightarrow%20s%5E%7B(1)%7D_1%20%5Crightarrow%20s%5E%7B(1)%7D_2%20%5Crightarrow%20%5Cldots%20"></p>
+<p>and</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctau%5E%7B(2)%7D%20=%20s%5E%7B(2)%7D_0%20%5Crightarrow%20a%5E%7B(2)%7D_0%20%5Crightarrow%20s%5E%7B(2)%7D_1%20%5Crightarrow%20s%5E%7B(2)%7D_2%20%5Crightarrow%20%5Cldots%20"></p>
+<p>Note: <img src="https://latex.codecogs.com/png.latex?%5Ctau"> (“tau”) is the Greek “t” (for trajectory).</p>
+<p>The super-script indicates which trajectory we are talking about. Each trajectory starts in potentially a different state (<img src="https://latex.codecogs.com/png.latex?s%5E%7B(i)%7D_0">). Once an action is taken, the environments transitions to a different state according to the transition function.</p>
+<p>Do we prefer one trajectory over another? Concretely, if each trajectory described one car driving trip, should we pick one over the other?</p>
+<p>This notion of preference is made concrete by defining a <strong>reward function</strong>.</p>
+</section>
+<section id="reward-function" class="level4">
+<h4 class="anchored" data-anchor-id="reward-function">Reward Function</h4>
+<p>Given any state <img src="https://latex.codecogs.com/png.latex?s"> and an action <img src="https://latex.codecogs.com/png.latex?a">, the reward function <img src="https://latex.codecogs.com/png.latex?r(s,a)"> is a number (any real number). So, we have a sequence of rewards for any trajectory e.g.&nbsp;<img src="https://latex.codecogs.com/png.latex?r(s%5E%7B(i)%7D_0,%20a%5E%7B(i)%7D_0),%20r(s%5E%7B(i)%7D_1,%20a%5E%7B(i)%7D_1),%20r(s%5E%7B(i)%7D_2,%20a%5E%7B(i)%7D_2),%20%5Cldots"> and so on for each consecutive state-action pair.</p>
+<p>The reward for the full trajectory is defined to be a simple sum of rewards:</p>
+<p><img src="https://latex.codecogs.com/png.latex?R(%5Ctau)%20=%20r(s_0,%20a_0)%20+%20r(s_1,%20a_1)%20+%20r(s_2,%20a_2)%20+%20%5Cldots%20=%20%5CSigma_%7Bi=0%7D%5E%7BT%7D%20r(s_t,%20a_t)"></p>
+<p><strong>Notational note</strong>: $_{i=1}^{T} is notational shortcut for the sum as <img src="https://latex.codecogs.com/png.latex?i"> goes from 0 to <img src="https://latex.codecogs.com/png.latex?T"> in steps of 1. <img src="https://latex.codecogs.com/png.latex?T"> can be <img src="https://latex.codecogs.com/png.latex?%5Cinfty"> or a fixed finite number or a varying finite number, as we discussed before.</p>
+<p>Now, we have a clear way of ranking trajectories. We prefer trajectories with higher sum-of-rewards <img src="https://latex.codecogs.com/png.latex?R(%5Ctau)">. Usually, instead of saying “sum-of-rewards”, one says just “reward” where it’s clear from context whether one is talking about <img src="https://latex.codecogs.com/png.latex?R(%5Ctau)"> or individual per-time-step rewards <img src="https://latex.codecogs.com/png.latex?r(s_t,%20a_t)">.</p>
+<p>This definition has an interesting consequence. We don’t just care about maximizing rewards at individual time-steps. By maximizing <img src="https://latex.codecogs.com/png.latex?R(%5Ctau)">, we are forced to consider all time-steps i.e.&nbsp;to look at long-term behavior. In the car driving example, the trajectory level reward can be the total time to go from point A (initial state) to point B (final state). It might be tempting to cut across a median to drive in a straight line and thus minimize time, but this short-term thinking might lead to (a) getting pulled over by cops, (b) the car getting stuck in grass, (c) damaging the car on uneven surfaces, all of which would lead to worse long-term consequences.</p>
+<p>In the case where one has arbitrarily long trajectories (<img src="https://latex.codecogs.com/png.latex?T%20%5Crightarrow%20%5Cinfty">), there’s another wrinkle - the total reward series (sum of terms) might not converge.</p>
+<p>For example,</p>
+<p><img src="https://latex.codecogs.com/png.latex?1%20+%200.9%20+%200.9%5E2%20+%200.9%5E3%20+%20%5Cldots%20=%2010"></p>
+<p>The series <strong>converges</strong> to a finite value.</p>
+<p>On the other hand,</p>
+<p><img src="https://latex.codecogs.com/png.latex?1%20+%201.1%20+%201.1%5E2%20+%201.1%5E3%20+%20%5Cldots%20=%20%5Cinfty"></p>
+<p>This series <strong>diverges</strong> i.e.&nbsp;if you keep adding more terms, the answer gets larger in an unbounded way. This is the famous geometric series:</p>
+<p><img src="https://latex.codecogs.com/png.latex?1%20+%20r%20+%20r%5E2%20+%20r%5E3%20%5Cldots%20=%20%5Cfrac%7B1%7D%7B1-r%7D%20"></p>
+<p>if and only if <img src="https://latex.codecogs.com/png.latex?-1%20%3C%20r%20%3C%201">. For any other r, the left-hand side diverges.</p>
+<p>To ensure <img src="https://latex.codecogs.com/png.latex?R(%5Ctau)"> is finite, one inserts a <strong>discount factor</strong>, <img src="https://latex.codecogs.com/png.latex?%5Cgamma"> (“gamma” - Greek ‘g’), which is a number between 0 and 1 (exclusive of end-points) or formally <img src="https://latex.codecogs.com/png.latex?%5Cgamma%20%5Cin%20(0,1)"> to get:</p>
+<p><img src="https://latex.codecogs.com/png.latex?R(%5Ctau)%20=%20r(s_0,%20a_0)%20+%20%5Cgamma%20r(s_1,%20a_1)%20+%20%5Cgamma%5E2%20r(s_2,%20a_2)%20+%20%5Cldots%20=%20%5CSigma_%7Bi=0%7D%5E%7B%5Cinfty%7D%20%5Cgamma%5Et%20r(s_t,%20a_t)"></p>
+<p>Technical note: If <img src="https://latex.codecogs.com/png.latex?r(s,%20a)"> is bounded (values lie between some min and max values), inserting <img src="https://latex.codecogs.com/png.latex?%5Cgamma"> ensures <img src="https://latex.codecogs.com/png.latex?R(%5Ctau)"> converges.</p>
+<p>There’s a more “physical” interpretation of gamma. A reward of $100 today is preferrable to a reward of $100 in one year. A reward of $100 today could be invested in a risk-free asset (a savings account or 1-year treasury bills) at say 3% to get $103 in a year vs $100 a year later. In other words, a reward of $100 in one year is effectively $100/1.03 ~ 97 cents today (since if you invested this at 3%, you would get exactly $100 next year). <img src="https://latex.codecogs.com/png.latex?%5Cgamma"> is a reflection of this time-value of reward. <img src="https://latex.codecogs.com/png.latex?%5Cgamma%20=%200.97"> would signify a 3% risk-free interest rate.</p>
+<p>We now have a full formal setup. Reiterating,</p>
+<ul>
+<li><p>By circumstance, we mean an <strong>environment</strong> which costs of a state-space <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BS%7D">, action-space <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BA%7D">, a transition function <img src="https://latex.codecogs.com/png.latex?p(s'%20%7C%20s,%20a)">.</p></li>
+<li><p>Decisions or actions are chosen from the action space <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BA%7D">. Their effects are encapsulated by the transition function.</p></li>
+<li><p>Time is discrete and ticks at some regular frequency. For us, it’s just a natural number.</p></li>
+<li><p>Trajectories are sequences of consecutive state-action tuples. For each (state, action) tuple (s,a), one can compute a reward <img src="https://latex.codecogs.com/png.latex?r(s,a)">. Sums of rewards (with potential discount factors) define a trajectory-level reward. Higher-reward trajectories are preferred. In reality, the definition of <img src="https://latex.codecogs.com/png.latex?r(s,a)"> is up to us and the problem. Maximizing sum-of-rewards incentivizes long-term behavior.</p></li>
 </ul>
 
 
