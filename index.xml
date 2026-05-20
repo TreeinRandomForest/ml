@@ -153,5 +153,67 @@
   <guid>https://treeinrandomforest.github.io/ml/posts/rl1-intro/</guid>
   <pubDate>Mon, 18 May 2026 00:00:00 GMT</pubDate>
 </item>
+<item>
+  <title>Reinforcement Learning Reading Group #2 - Prerequisites</title>
+  <link>https://treeinrandomforest.github.io/ml/posts/rl2-qv/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p><strong>IN PROGRESS</strong></p>
+<p>In the <a href="https://treeinrandomforest.github.io/ml/posts/rl1-intro/">last entry</a>, we covered the basic formalism of a Markov Decision Process (MDP). We looked at state and action spaces, rewards, trajectories and policies.</p>
+<p>In this write-up, we’ll look at two crucial quantities. Suppose, we are given the following:</p>
+<ul>
+<li><p>An environment i.e.&nbsp;a state space <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BS%7D">, an action space <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BA%7D"> and a simulator (or real-life setup) that can execute the unknown (to us) transition function <img src="https://latex.codecogs.com/png.latex?p(s'%20%7C%20s,%20a)">.</p></li>
+<li><p>A reward function <img src="https://latex.codecogs.com/png.latex?r(s,a)"> which can be used to compute trajectory level rewards <img src="https://latex.codecogs.com/png.latex?R(%5Ctau)%20=%20r(s_0,%20a_0)%20+%20%5Cgamma%20r(s_1,%20a_1)%20+%20%5Cgamma%5E2%20r(s_2,%20a_2)%20+%20%5Cldots"> where <img src="https://latex.codecogs.com/png.latex?%5Cgamma"> is the discount factor (in <img src="https://latex.codecogs.com/png.latex?(0,1)">).</p></li>
+<li><p>A policy <img src="https://latex.codecogs.com/png.latex?%5Cpi(a%20%7C%20s)"> that takes a state as an input and maps to an action. The policy can be determinstic (map state to one action) or stochastic (for a given state, produce a probability for picking each action).</p></li>
+</ul>
+<p>The central task in RL is to pick a good policy. Recall that a policy is a rule that maps states to actions i.e.&nbsp;<img src="https://latex.codecogs.com/png.latex?s%20%5Cmapsto%20a"> (determinstic policy) or states to probabilities over actions <img src="https://latex.codecogs.com/png.latex?s%20%5Cmapsto%20(p(a_1),%20p(a_2),%20%5Cldots,%20p(a_N))"> if there are N distinct actions. In short, policies tell an actor (also known as the <strong>agent</strong>) how to act or what decisions to make. Intuitively, a “good” policy will lead to trajectories <img src="https://latex.codecogs.com/png.latex?%5Ctau%20=%20s_0%20%5Crightarrow%20a_0%20%5Crightarrow%20s_1%20%5Crightarrow%20a_1%20%5Crightarrow%20%5Cldots"> that have “high” rewards, <img src="https://latex.codecogs.com/png.latex?R(%5Ctau)%20=%20%5CSigma_%7Bi=0%7D%5E%7BT%7D%20%5Cgamma%5Ei%20r(s_i,%20a_i)">.</p>
+<p>To identify high-reward actions, it’s useful to compute two quantities:</p>
+<ul>
+<li><p>The “quality” score of a state <img src="https://latex.codecogs.com/png.latex?s_t">. This quantity assesses if it’s desirable to land up in this state. Formally, this is called the <strong>state value function</strong> <img src="https://latex.codecogs.com/png.latex?v(s)">. For convenience, <img src="https://latex.codecogs.com/png.latex?v(s)"> is also referred to as the value function.</p></li>
+<li><p>The “quality” score of an action in a given state. This quantity assesses how desirable it is to take an action in the given state. Formally, this is called the <strong>state-action value function</strong> <img src="https://latex.codecogs.com/png.latex?Q(s,%20a)">. For convenience, <img src="https://latex.codecogs.com/png.latex?Q(s,a)"> is also called the Q-function or Q-value.</p></li>
+</ul>
+<p>Let’s define the two quantities.</p>
+<section id="state-action-value-function-qsa" class="level4">
+<h4 class="anchored" data-anchor-id="state-action-value-function-qsa">State-action value function <img src="https://latex.codecogs.com/png.latex?Q(s,a)"></h4>
+<p>Assume we’re given a policy <img src="https://latex.codecogs.com/png.latex?%5Cpi">, which lets us generate trajectories.</p>
+<p>Suppose, at time t in a trajectory, we land in state <img src="https://latex.codecogs.com/png.latex?s_t"> and are forced to take an action <img src="https://latex.codecogs.com/png.latex?a_t">. The transition function will take into a state <img src="https://latex.codecogs.com/png.latex?s_%7Bt+1%7D"> according to the probability <img src="https://latex.codecogs.com/png.latex?p(s_%7Bt+1%7D%7Cs_t,%20a_t)">. We can now use the policy <img src="https://latex.codecogs.com/png.latex?%5Cpi"> to generate the next action, land in a new state <img src="https://latex.codecogs.com/png.latex?s_%7Bt+2%7D"> according to the transition function and so on till some stopping criterion is satisfied. At each step, we’ll get a reward and we can define a partial-trajectory reward known as <strong>reward to-go</strong>:</p>
+<p><img src="https://latex.codecogs.com/png.latex?G_t%20=%20r(s_t,%20a_t)%20+%20%5Cgamma%20r(s_%7Bt+1%7D,%20a_%7Bt+1%7D)%20+%20%5Cgamma%5E2%20r(s_%7Bt+2%7D,%20a_%7Bt+2%7D)%20+%20%5Cldots%20=%20%5CSigma_%7Bt'=t%7D%5E%7BT%7D%20%5Cgamma%5E%7Bt'-t%7D%20r(s_%7Bt'%7D,%20a_%7Bt'%7D)"></p>
+<p>It might be helpful to set <img src="https://latex.codecogs.com/png.latex?%5Cgamma=1"> to see that <img src="https://latex.codecogs.com/png.latex?G_t"> is simply the some of future rewards (“to-go”) starting from time <img src="https://latex.codecogs.com/png.latex?t">. The notation <img src="https://latex.codecogs.com/png.latex?G_t"> is used to be consistent with Sutton and Barto’s book in case you use it although they start the sum at <img src="https://latex.codecogs.com/png.latex?t+1"> (different definition).</p>
+<p>To summarize, given a state <img src="https://latex.codecogs.com/png.latex?s_t"> at time <img src="https://latex.codecogs.com/png.latex?t"> and a forced action <img src="https://latex.codecogs.com/png.latex?a_t"> at time t, we can rollout the trajectory with policy <img src="https://latex.codecogs.com/png.latex?%5Cpi"> and compute a number <img src="https://latex.codecogs.com/png.latex?G_t"> that’s the reward to-go.</p>
+<p>If we were to repeat this experiment, we would get a different trajectory after time <img src="https://latex.codecogs.com/png.latex?t">. This is because:</p>
+<ul>
+<li><p>The policy might be stochastic and not determinstic i.e.&nbsp;<img src="https://latex.codecogs.com/png.latex?%5Cpi(s)"> gives a distribution over actions (<img src="https://latex.codecogs.com/png.latex?a_1"> with probability 40%, <img src="https://latex.codecogs.com/png.latex?a_2"> with probability 60%) and repeated runs will choose different actions (see aside on sampling below).</p></li>
+<li><p>The transition function might be stochastic and not determinstic i.e.&nbsp;even if one takes the same action in the same state, <img src="https://latex.codecogs.com/png.latex?p(s'%20%7C%20s,%20a)"> defines a probability distribution over <img src="https://latex.codecogs.com/png.latex?s'"> and we’ll end up in different states in repeated runs.</p></li>
+</ul>
+<p><strong>Aside on sampling</strong>:</p>
+<p>Suppose, we have three possible actions:</p>
+<p><img src="https://latex.codecogs.com/png.latex?a_1"> with probability 0.4</p>
+<p><img src="https://latex.codecogs.com/png.latex?a_2"> with probability 0.5</p>
+<p><img src="https://latex.codecogs.com/png.latex?a_3"> with probability 0.1</p>
+<p>We could just choose <img src="https://latex.codecogs.com/png.latex?a_2"> since it has the highest probability. Another option is to <strong>sample</strong> i.e.&nbsp;pick different actions according to their probabilities, as shown i figure 1 below.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://treeinrandomforest.github.io/ml/posts/rl2-qv/images/sampling.svg" class="img-fluid figure-img"></p>
+<figcaption>Figure 1. Sampling from a distribution</figcaption>
+</figure>
+</div>
+<p>Since all the probabilities have to add up to 1, put them consecutively on the <img src="https://latex.codecogs.com/png.latex?%5B0,1%5D"> interval. Sample a uniform random number and place it on the interval. In the figure, <img src="https://latex.codecogs.com/png.latex?0.93"> is drawn and placed. It lands in the interval “owned” by <img src="https://latex.codecogs.com/png.latex?a_3"> and so we would pick <img src="https://latex.codecogs.com/png.latex?a_3">. In general the probability of a random number landing in one of the intervals is proportional to the length of the interval.</p>
+<p><strong>End of Aside</strong></p>
+
+
+</section>
+
+ ]]></description>
+  <category>rl</category>
+  <category>reading group</category>
+  <category>q-function</category>
+  <category>value function</category>
+  <guid>https://treeinrandomforest.github.io/ml/posts/rl2-qv/</guid>
+  <pubDate>Mon, 18 May 2026 00:00:00 GMT</pubDate>
+</item>
 </channel>
 </rss>

@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2026-05-18">
 
-<title>Discovery</title>
+<title>Reinforcement Learning Reading Group #2 - Prerequisites – Discovery</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,25 +27,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-3e7735b7b22659e5fa437aca0bb49075.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-3e7735b7b22659e5fa437aca0bb49075.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,35 +71,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -132,17 +102,17 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="Discovery" href="index.xml" data-external="1"></head>
+<link rel="stylesheet" href="../../styles.css">
+</head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Discovery</span>
     </a>
   </div>
@@ -153,7 +123,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -176,106 +146,89 @@ window.Quarto = {
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
-      <h1 class="title">Discovery</h1>
-                      </div>
+    <div class="quarto-title column-body">
+      <h1 class="title">Reinforcement Learning Reading Group #2 - Prerequisites</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">rl</div>
+                <div class="quarto-category">reading group</div>
+                <div class="quarto-category">q-function</div>
+                <div class="quarto-category">value function</div>
+              </div>
+                  </div>
   </div>
     
   
-  <div class="quarto-title-meta column-page-left">
+  <div class="quarto-title-meta">
 
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">May 18, 2026</p>
+      </div>
+    </div>
     
       
     </div>
     
   
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(2)</span></div><div class="category" data-category="bWRw">mdp <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cS1mdW5jdGlvbg==">q-function <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cmVhZGluZyUyMGdyb3Vw">reading group <span class="quarto-category-count">(2)</span></div><div class="category" data-category="cmw=">rl <span class="quarto-category-count">(2)</span></div><div class="category" data-category="dmFsdWUlMjBmdW5jdGlvbg==">value function <span class="quarto-category-count">(1)</span></div></div></div>
+    
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
 
-
-
-
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="cmwlMkNyZWFkaW5nJTIwZ3JvdXAlMkNtZHA=" data-listing-date-sort="1779062400000" data-listing-file-modified-sort="1779315953548" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1984">
-<div class="thumbnail"><a href="./posts/rl1-intro/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/rl1-intro/index.html" class="no-external">Reinforcement Learning Reading Group #1 - Prerequisites</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmw='); return false;">rl</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmVhZGluZyUyMGdyb3Vw'); return false;">reading group</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bWRw'); return false;">mdp</div>
-
+<p><strong>IN PROGRESS</strong></p>
+<p>In the <a href="https://treeinrandomforest.github.io/ml/posts/rl1-intro/">last entry</a>, we covered the basic formalism of a Markov Decision Process (MDP). We looked at state and action spaces, rewards, trajectories and policies.</p>
+<p>In this write-up, we’ll look at two crucial quantities. Suppose, we are given the following:</p>
+<ul>
+<li><p>An environment i.e.&nbsp;a state space <span class="math inline">\(\mathcal{S}\)</span>, an action space <span class="math inline">\(\mathcal{A}\)</span> and a simulator (or real-life setup) that can execute the unknown (to us) transition function <span class="math inline">\(p(s' | s, a)\)</span>.</p></li>
+<li><p>A reward function <span class="math inline">\(r(s,a)\)</span> which can be used to compute trajectory level rewards <span class="math inline">\(R(\tau) = r(s_0, a_0) + \gamma r(s_1, a_1) + \gamma^2 r(s_2, a_2) + \ldots\)</span> where <span class="math inline">\(\gamma\)</span> is the discount factor (in <span class="math inline">\((0,1)\)</span>).</p></li>
+<li><p>A policy <span class="math inline">\(\pi(a | s)\)</span> that takes a state as an input and maps to an action. The policy can be determinstic (map state to one action) or stochastic (for a given state, produce a probability for picking each action).</p></li>
+</ul>
+<p>The central task in RL is to pick a good policy. Recall that a policy is a rule that maps states to actions i.e.&nbsp;<span class="math inline">\(s \mapsto a\)</span> (determinstic policy) or states to probabilities over actions <span class="math inline">\(s \mapsto (p(a_1), p(a_2), \ldots, p(a_N))\)</span> if there are N distinct actions. In short, policies tell an actor (also known as the <strong>agent</strong>) how to act or what decisions to make. Intuitively, a “good” policy will lead to trajectories <span class="math inline">\(\tau = s_0 \rightarrow a_0 \rightarrow s_1 \rightarrow a_1 \rightarrow \ldots\)</span> that have “high” rewards, <span class="math inline">\(R(\tau) = \Sigma_{i=0}^{T} \gamma^i r(s_i, a_i)\)</span>.</p>
+<p>To identify high-reward actions, it’s useful to compute two quantities:</p>
+<ul>
+<li><p>The “quality” score of a state <span class="math inline">\(s_t\)</span>. This quantity assesses if it’s desirable to land up in this state. Formally, this is called the <strong>state value function</strong> <span class="math inline">\(v(s)\)</span>. For convenience, <span class="math inline">\(v(s)\)</span> is also referred to as the value function.</p></li>
+<li><p>The “quality” score of an action in a given state. This quantity assesses how desirable it is to take an action in the given state. Formally, this is called the <strong>state-action value function</strong> <span class="math inline">\(Q(s, a)\)</span>. For convenience, <span class="math inline">\(Q(s,a)\)</span> is also called the Q-function or Q-value.</p></li>
+</ul>
+<p>Let’s define the two quantities.</p>
+<section id="state-action-value-function-qsa" class="level4">
+<h4 class="anchored" data-anchor-id="state-action-value-function-qsa">State-action value function <span class="math inline">\(Q(s,a)\)</span></h4>
+<p>Assume we’re given a policy <span class="math inline">\(\pi\)</span>, which lets us generate trajectories.</p>
+<p>Suppose, at time t in a trajectory, we land in state <span class="math inline">\(s_t\)</span> and are forced to take an action <span class="math inline">\(a_t\)</span>. The transition function will take into a state <span class="math inline">\(s_{t+1}\)</span> according to the probability <span class="math inline">\(p(s_{t+1}|s_t, a_t)\)</span>. We can now use the policy <span class="math inline">\(\pi\)</span> to generate the next action, land in a new state <span class="math inline">\(s_{t+2}\)</span> according to the transition function and so on till some stopping criterion is satisfied. At each step, we’ll get a reward and we can define a partial-trajectory reward known as <strong>reward to-go</strong>:</p>
+<p><span class="math display">\[G_t = r(s_t, a_t) + \gamma r(s_{t+1}, a_{t+1}) + \gamma^2 r(s_{t+2}, a_{t+2}) + \ldots = \Sigma_{t'=t}^{T} \gamma^{t'-t} r(s_{t'}, a_{t'})\]</span></p>
+<p>It might be helpful to set <span class="math inline">\(\gamma=1\)</span> to see that <span class="math inline">\(G_t\)</span> is simply the some of future rewards (“to-go”) starting from time <span class="math inline">\(t\)</span>. The notation <span class="math inline">\(G_t\)</span> is used to be consistent with Sutton and Barto’s book in case you use it although they start the sum at <span class="math inline">\(t+1\)</span> (different definition).</p>
+<p>To summarize, given a state <span class="math inline">\(s_t\)</span> at time <span class="math inline">\(t\)</span> and a forced action <span class="math inline">\(a_t\)</span> at time t, we can rollout the trajectory with policy <span class="math inline">\(\pi\)</span> and compute a number <span class="math inline">\(G_t\)</span> that’s the reward to-go.</p>
+<p>If we were to repeat this experiment, we would get a different trajectory after time <span class="math inline">\(t\)</span>. This is because:</p>
+<ul>
+<li><p>The policy might be stochastic and not determinstic i.e.&nbsp;<span class="math inline">\(\pi(s)\)</span> gives a distribution over actions (<span class="math inline">\(a_1\)</span> with probability 40%, <span class="math inline">\(a_2\)</span> with probability 60%) and repeated runs will choose different actions (see aside on sampling below).</p></li>
+<li><p>The transition function might be stochastic and not determinstic i.e.&nbsp;even if one takes the same action in the same state, <span class="math inline">\(p(s' | s, a)\)</span> defines a probability distribution over <span class="math inline">\(s'\)</span> and we’ll end up in different states in repeated runs.</p></li>
+</ul>
+<p><strong>Aside on sampling</strong>:</p>
+<p>Suppose, we have three possible actions:</p>
+<p><span class="math inline">\(a_1\)</span> with probability 0.4</p>
+<p><span class="math inline">\(a_2\)</span> with probability 0.5</p>
+<p><span class="math inline">\(a_3\)</span> with probability 0.1</p>
+<p>We could just choose <span class="math inline">\(a_2\)</span> since it has the highest probability. Another option is to <strong>sample</strong> i.e.&nbsp;pick different actions according to their probabilities, as shown i figure 1 below.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/sampling.svg" class="img-fluid figure-img"></p>
+<figcaption>Figure 1. Sampling from a distribution</figcaption>
+</figure>
 </div>
-<div class="delink listing-description"><a href="./posts/rl1-intro/index.html" class="no-external">
-This is hopefully the first of a series of write-ups for a group of engineers ramping up on RL. We will be reading papers and implementing a subset from the Spinning up RL li…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/rl1-intro/index.html" class="no-external">
-<div class="listing-date">
-May 18, 2026
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="cmwlMkNyZWFkaW5nJTIwZ3JvdXAlMkNxLWZ1bmN0aW9uJTJDdmFsdWUlMjBmdW5jdGlvbg==" data-listing-date-sort="1779062400000" data-listing-file-modified-sort="1779315953548" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="748">
-<div class="thumbnail"><a href="./posts/rl2-qv/index.html" class="no-external">
+<p>Since all the probabilities have to add up to 1, put them consecutively on the <span class="math inline">\([0,1]\)</span> interval. Sample a uniform random number and place it on the interval. In the figure, <span class="math inline">\(0.93\)</span> is drawn and placed. It lands in the interval “owned” by <span class="math inline">\(a_3\)</span> and so we would pick <span class="math inline">\(a_3\)</span>. In general the probability of a random number landing in one of the intervals is proportional to the length of the interval.</p>
+<p><strong>End of Aside</strong></p>
 
-<p class="card-img-top"><img loading='lazy' src="posts/rl2-qv/images/sampling.svg"  class="thumbnail-image card-img"/></p>
 
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/rl2-qv/index.html" class="no-external">Reinforcement Learning Reading Group #2 - Prerequisites</a>
-</h3>
-<div class="listing-categories">
+</section>
 
-<div class="listing-category" onclick="window.quartoListingCategory('cmw='); return false;">rl</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmVhZGluZyUyMGdyb3Vw'); return false;">reading group</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cS1mdW5jdGlvbg=='); return false;">q-function</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('dmFsdWUlMjBmdW5jdGlvbg=='); return false;">value function</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/rl2-qv/index.html" class="no-external">
-<strong>IN PROGRESS</strong>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/rl2-qv/index.html" class="no-external">
-<div class="listing-date">
-May 18, 2026
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
