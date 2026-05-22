@@ -1,6 +1,6 @@
 ---
 title: "Reinforcement Learning Reading Group #2 - Prerequisites"
-date: "2026-05-18"
+date: "2026-05-19"
 categories: [rl, reading group, q-function, value function]
 ---
 
