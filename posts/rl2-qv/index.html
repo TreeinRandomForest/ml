@@ -224,6 +224,43 @@ window.Quarto = {
 </div>
 <p>Since all the probabilities have to add up to 1, put them consecutively on the <span class="math inline">\([0,1]\)</span> interval. Sample a uniform random number and place it on the interval. In the figure, <span class="math inline">\(0.93\)</span> is drawn and placed. It lands in the interval “owned” by <span class="math inline">\(a_3\)</span> and so we would pick <span class="math inline">\(a_3\)</span>. In general the probability of a random number landing in one of the intervals is proportional to the length of the interval.</p>
 <p><strong>End of Aside</strong></p>
+<p>For each sub-trajectory starting at <span class="math inline">\(s_t\)</span> with action <span class="math inline">\(a_t\)</span>, we have one reward to-go value, <span class="math inline">\(G_t\)</span>. We can now define the “quality” of (<span class="math inline">\(s_t\)</span>, <span class="math inline">\(a_t\)</span>) as the average (over all trajectories generated beyond time <span class="math inline">\(t\)</span>) <span class="math inline">\(G_t\)</span>.</p>
+<p><span class="math display">\[Q(s_t, a_t) = \frac{1}{\text{number of trajectories}} \Sigma_{i=1}^{\text{num traj}} G_t^{(i)}\]</span></p>
+<p>This is written more formally as:</p>
+<p><span class="math display">\[Q(s_t, a_t) = \mathbb{E}_{s\sim p(.|s,a),a\sim \pi(s)}[G_t | s_t, a_t]\]</span></p>
+<p>We’ll unpack this shortly. Intuitively, you should think of <span class="math inline">\(Q(s_t,a_t)\)</span> as the “average discounted cumulative reward (reward to-go) if one is forced to take action <span class="math inline">\(a_t\)</span> in state <span class="math inline">\(s_t\)</span> and then take future actions according to the policy <span class="math inline">\(\pi\)</span>”. The part of using the policy <span class="math inline">\(\pi\)</span> to take future actions is crucial and is made explicit by writing <span class="math inline">\(Q^{\pi}(s_t,a_t)\)</span>.</p>
+<p>Let’s now unpack:</p>
+<p><span class="math display">\[Q^{\pi}(s_t, a_t) = \mathbb{E}_{s\sim p(.|s,a),a\sim \pi(s)}[G_t | s_t, a_t]\]</span></p>
+<p>The first important piece is <span class="math inline">\(\mathbb{E}\)</span>. This is called the <strong>expected value</strong>. More precisely, in probability theory, one works with objects called <strong>random variables</strong>. You can think of a random variable as a quantity take can take multiple values, each with a specific probability. The simplest example or a random variable is a coin toss i.e.</p>
+<p><span class="math display">\[X =
+\begin{cases}
+  0 &amp; \text{if heads with probability $p$}\\
+  1 &amp; \text{if tails with probability $1-p$}
+\end{cases}
+\]</span></p>
+<p>The expected value of X i.e.&nbsp;<span class="math inline">\(\mathbb{E}X\)</span> is the average outcome i.e.</p>
+<p><span class="math display">\[\mathbb{E} = 0.p + 1.(1-p) = 1-p\]</span></p>
+<p>This might look mysterious so let’s look at an illustrative example. Suppose you are given the following data for test scores for 10 students:</p>
+<p><span class="math display">\[3,3,3,3,5,5,7,9,9,9\]</span></p>
+<p>The average score would be:</p>
+<p><span class="math display">\[\frac{3+3+3+3+5+5+7+9+9+9}{10} = \frac{3*4 + 5*2 + 7*1 + 9*3}{10} = 3*\frac{4}{10} + 5*\frac{2}{10} + 7*\frac{1}{10} + 9*\frac{3}{10}\]</span></p>
+<p>The ratios are precisely the probabilities of picking students with certain scores i.e.&nbsp;the % of students with each unique score:</p>
+<p><span class="math display">\[3*p(3) + 5*p(5) + 7*p(7) + 9*p(9)\]</span></p>
+<p>In other words, the average is the “sum of each unique value multiplied by the probability of observing the value”. Mathematically, we could write:</p>
+<p><span class="math display">\[\mathbb{E}X = \Sigma_{x} x * p(x)\]</span></p>
+<p>where the sum <span class="math inline">\(\Sigma_{x}\)</span> is over all unique values <span class="math inline">\(X\)</span> can take. Often the probability distribution is made explicit by writing <span class="math inline">\(\mathbb{E}_{x \sim p(x)}X\)</span>.</p>
+<p>Going back to <span class="math inline">\(Q^{\pi}\)</span>:</p>
+<p><span class="math display">\[Q^{\pi}(s_t, a_t) = \mathbb{E}_{s\sim p(.|s,a),a\sim \pi(s)}[G_t | s_t, a_t]\]</span></p>
+<p>We see that the random variable is <span class="math inline">\(G_t = \Sigma_{t'=t}^{T} \gamma^{t'-t} r(s_t,a_t)\)</span>. The <span class="math inline">\(| s_t, a_t\)</span> part signifies that we have a known fixed state and known fixed action at time <span class="math inline">\(t\)</span>. Lastly, <span class="math inline">\(\mathbb{E}_{s\sim p(.|s,a),a\sim \pi(s)}\)</span> specifies that actions <span class="math inline">\(s\)</span> are sampled from the transition function <span class="math inline">\(p(s'|s,a)\)</span> and actions are sampled from the policy <span class="math inline">\(\pi(s|a)\)</span>.</p>
+<p>Theoretically, you could think of computing <span class="math inline">\(Q^{\pi}(s_t,a_t)\)</span> as follows:</p>
+<ul>
+<li><p>Generate every possible trajectory start at time <span class="math inline">\(t=0\)</span> by taking actions from policy <span class="math inline">\(\pi\)</span> and letting states evolve according to the transition function <span class="math inline">\(p(s'|s,a)\)</span>.</p></li>
+<li><p>Select the subset of trajectories that hit state <span class="math inline">\(s_t\)</span> at time <span class="math inline">\(t\)</span> and where the action taken is <span class="math inline">\(a_t\)</span> at time <span class="math inline">\(t\)</span>.</p></li>
+<li><p>For the subset of trajectories, compute the discounted reward to-go <span class="math inline">\(G_t\)</span> for every trajectory.</p></li>
+<li><p>Average these reward to-go values to get <span class="math inline">\(Q^{\pi}(s_t,a_t)\)</span>.</p></li>
+</ul>
+<p>This is computationally intractable. For example, if we have <span class="math inline">\(S\)</span> distinct states and <span class="math inline">\(A\)</span> distinct actions, and each trajectory has <span class="math inline">\(T\)</span> time-steps, we have a total of <span class="math inline">\((S*A)^T\)</span> trajectories. Even for small values of <span class="math inline">\(S, A, T\)</span> e.g.&nbsp;<span class="math inline">\(S=10, A=10, T=10\)</span>, this is <span class="math inline">\(100^{10} = 10^{20}\)</span> i.e.&nbsp;100 billion billion. If it takes one second to do one rollout, it would take <span class="math inline">\(\sim 10^{12}\)</span> years to generate every trajectory sequentially. This is a trillion years (the universe is about 14 billion years old).</p>
+<p>We now understand how to evaluate the quality of a state-action pair using <span class="math inline">\(Q^{\pi}\)</span>. Mathematically (and programmatically), <span class="math inline">\(Q^{\pi}\)</span> is a function that maps a state-action pair to a number.</p>
 
 
 </section>
