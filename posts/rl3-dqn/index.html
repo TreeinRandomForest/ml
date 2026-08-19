@@ -229,8 +229,8 @@ window.Quarto = {
 <p>As noted earlier, each loss term depends on one <span class="math inline">\((s,a,s',r)\)</span> tuple. Each trajectory e.g.&nbsp;one instance of a game produces consecutive tuples</p>
 <p><span class="math display">\[(s_0, a_0, s_1, r_0, a_1, s_2, r_1, a_2, s_3, r_2, \ldots)\]</span></p>
 <p>which can be decomposed into tuples:</p>
-<p><span class="math inline">\((s_0, a_0, s_1, r_0), (s_1, a_1, s_2, r_1), (s_2, a_2, s_3, r_2), \ldots\)</span></p>
-<p>These tuples are highly correlated which reduces the effective amount of information being collected.</p>
+<p><span class="math display">\[(s_0, a_0, s_1, r_0), (s_1, a_1, s_2, r_1), (s_2, a_2, s_3, r_2), \ldots\]</span></p>
+<p>These tuples are highly correlated which reduces the effective amount of information being collected. To break this correlation, one accumulates tuples from various trajectories into a buffer (the replay or experience replay buffer) of fixed size <span class="math inline">\(N\)</span>. A batch of tuples is then sampled randomly which ensures that tuples from different trajectories are trained over in each batch.</p>
 <p>A subtle point: we are not approximating <span class="math inline">\(Q^{\pi} \approx Q_{\theta}\)</span>. If we were, we would be on-policy i.e.&nbsp;we would need to collect tuples under the policy <span class="math inline">\(\pi\)</span>, train <span class="math inline">\(Q^{\theta}\)</span> to approximate <span class="math inline">\(Q^{\pi}\)</span>, improve the policy and then collect more tuples.</p>
 <p>We are instead learning <span class="math inline">\(Q^{*}\)</span>. This is independent of the data collection policy! It is by definition at least as good as any <span class="math inline">\(Q^{\pi}\)</span> i.e.</p>
 <p><span class="math display">\[Q^{*}(s,a) \geq Q^{\pi}(s,a) \forall (s,a) \forall \pi\]</span></p>
