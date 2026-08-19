@@ -20,7 +20,7 @@
 
 
 
-<p>This article covers implementation notes for Deep Q-learning (DQN) on Atari <a href="https://daiwk.github.io/assets/dqn.pdf">original nature paper</a>. The goal is to write down the distinct components and design choices before we write any code. Ideally, writing the code for DQN should be a purely mechanical activity although realistically, a few choices are made much clearer during implementation e.g.&nbsp;code optimizations and some design choices.</p>
+<p>This article covers implementation notes for Deep Q-learning (DQN) on Atari as described in the <a href="https://daiwk.github.io/assets/dqn.pdf">original nature paper</a>. The goal is to write down the distinct components and design choices before we write any code. Ideally, writing the code for DQN should be a purely mechanical activity although realistically, a few choices are made much clearer during implementation e.g.&nbsp;code optimizations and some design choices.</p>
 <div class="hidden">
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cusepackage%7Bamsmath%7D%0A%5CDeclareMathOperator*%7B%5Cargmax%7D%7Barg%5C,max%7D%0A"></p>
 </div>
