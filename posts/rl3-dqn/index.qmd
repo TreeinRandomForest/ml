@@ -4,7 +4,7 @@ date: "2026-08-12"
 categories: [rl, reading group, dqn, atari]
 ---
 
-This article covers implementation notes for Deep Q-learning (DQN) on Atari [original nature paper](https://daiwk.github.io/assets/dqn.pdf). The goal is to write down the distinct components and design choices before we write any code. Ideally, writing the code for DQN should be a purely mechanical activity although realistically, a few choices are made much clearer during implementation e.g. code optimizations and some design choices.
+This article covers implementation notes for Deep Q-learning (DQN) on Atari as described in the [original nature paper](https://daiwk.github.io/assets/dqn.pdf). The goal is to write down the distinct components and design choices before we write any code. Ideally, writing the code for DQN should be a purely mechanical activity although realistically, a few choices are made much clearer during implementation e.g. code optimizations and some design choices.
 
 ::: {.hidden}
 $$
