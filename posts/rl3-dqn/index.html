@@ -231,13 +231,15 @@ window.Quarto = {
 <p>which can be decomposed into tuples:</p>
 <p><span class="math display">\[(s_0, a_0, s_1, r_0), (s_1, a_1, s_2, r_1), (s_2, a_2, s_3, r_2), \ldots\]</span></p>
 <p>These tuples are highly correlated which reduces the effective amount of information being collected. To break this correlation, one accumulates tuples from various trajectories into a buffer (the replay or experience replay buffer) of fixed size <span class="math inline">\(N\)</span>. A batch of tuples is then sampled randomly which ensures that tuples from different trajectories are trained over in each batch.</p>
-<p>A subtle point: we are not approximating <span class="math inline">\(Q^{\pi} \approx Q_{\theta}\)</span>. If we were, we would be on-policy i.e.&nbsp;we would need to collect tuples under the policy <span class="math inline">\(\pi\)</span>, train <span class="math inline">\(Q^{\theta}\)</span> to approximate <span class="math inline">\(Q^{\pi}\)</span>, improve the policy and then collect more tuples.</p>
+<p>A subtle point: we are not approximating <span class="math inline">\(Q^{\pi} \approx Q_{\theta}\)</span>. If we were, we would be on-policy i.e.&nbsp;we would need to collect tuples under the policy <span class="math inline">\(\pi\)</span>, train <span class="math inline">\(Q_{\theta}\)</span> to approximate <span class="math inline">\(Q^{\pi}\)</span>, improve the policy and then collect more tuples.</p>
 <p>We are instead learning <span class="math inline">\(Q^{*}\)</span>. This is independent of the data collection policy! It is by definition at least as good as any <span class="math inline">\(Q^{\pi}\)</span> i.e.</p>
 <p><span class="math display">\[Q^{*}(s,a) \geq Q^{\pi}(s,a) \forall (s,a) \forall \pi\]</span></p>
 <p>To learn <span class="math inline">\(Q^{*}\)</span>, it doesn’t matter what policy the data is collected under and we can mix various data collection policies together i.e.&nbsp;we can have a buffer/array of tuples collected under different policies.</p>
 <p><strong>Fine-print 1</strong>: The data collection policies are relevant for <em>coverage</em>. If a <span class="math inline">\((s,a)\)</span> pair is never visited, we can’t compute <span class="math inline">\(Q^{*}(s,a)\)</span>. But as long as we keep visiting <span class="math inline">\((s,a)\)</span> under any policy, we have some data that can be used to infer <span class="math inline">\(Q^{*}(s,a)\)</span>.</p>
 <p><strong>Fine-print 2</strong>: For tabular Q-learning, fine-print 1 applies. For function approximation (e.g.&nbsp;using an NN to approximate <span class="math inline">\(Q^{*}\)</span>, not only does fine-print 1 apply but the distribution of tuples is important during training because SGD will tradeoff approximation errors in seen data (reflected by the loss) with approximation errors in unseen data. More precisely, (a) there are no guarantees on unseen data - the approximation error might be large or small, and (b) even in seen tuples, under-represented tuples might have larger errors than well-represented tuples.</p>
 <p>In general, the combination of function approximation (neural net in our case), bootstrapping (using <span class="math inline">\(Q_{\theta}\)</span> to define the target), and off-policy learning (buffer of tuples collected under different policies) can actually cause learning to become unstable where <span class="math inline">\(Q_{\theta}(s,a) \rightarrow \infty\)</span> in theory. In practice, these values can grow to unrealistic values but can also recover. This is known as the <strong>deadly triad</strong>. Small errors can compound rapidly e.g.&nbsp;see <a href="https://arxiv.org/pdf/1812.02648">paper</a>.</p>
+<section id="implementation-notes" class="level2">
+<h2 class="anchored" data-anchor-id="implementation-notes">Implementation Notes</h2>
 <section id="initial-environment" class="level3">
 <h3 class="anchored" data-anchor-id="initial-environment">Initial Environment</h3>
 <p>Do all initial experiments with <strong>Pong</strong>. This is especially helpful for debugging.</p>
@@ -245,29 +247,24 @@ window.Quarto = {
 <p>Run multiple seeds - at least 3-5 per experiment.</p>
 <p>Use <a href="https://gymnasium.farama.org/v0.29.0/environments/atari/">Gymnasium</a>. <a href="https://pypi.org/project/ale-py/">ale-py</a> has the games.</p>
 </section>
-<section id="hardware" class="level2">
-<h2 class="anchored" data-anchor-id="hardware">Hardware</h2>
+<section id="hardware" class="level3">
+<h3 class="anchored" data-anchor-id="hardware">Hardware</h3>
 <p>NVIDIA 3090/4090 should be enough since env is CPU-bound. Ensure you have enough vCPUs available.</p>
+</section>
 <section id="ablations" class="level3">
 <h3 class="anchored" data-anchor-id="ablations">Ablations</h3>
 <p>The following is a non-exhaustive list of ablations:</p>
-<p><strong>Replay Buffer Size</strong>: The replay buffer breaks correlations between tuples. Tuples are added to the buffer and old ones are evicted to ensure the buffer doesn’t exceed a maximum size. As the buffer is made smaller, we approach a more online sampling procedure where all tuples are from recent episodes and are therefore, more correlated.</p>
+<p><strong>Replay Buffer Size</strong>: As stated above, the replay buffer breaks correlations between tuples. Tuples are added to the buffer and old ones are evicted to ensure the buffer doesn’t exceed a maximum size. As the buffer is made smaller, we approach a more online sampling procedure where all tuples are from recent episodes and are therefore, more correlated.</p>
 <p>Vary the buffer size e.g.&nbsp;1, 100, 10000, 1M and observe the learning curves.</p>
 <p><strong>Frame Stacking</strong>: For various games, change the stacking size e.g.&nbsp;1, 2, 4, 8 etc. to observe the impact including higher-derivative information (velocity, acceleration etc.)</p>
 <p><strong>Target Network Freezing</strong>: Use the current <span class="math inline">\(Q\)</span> network to calculate the target. A more comprehensive experiment would change the freezing frequency from 1 (no freezing) to 10k (paper’s value) to a much higher value.</p>
-<p><strong><span class="math inline">\(\varepsilon\)</span></strong>:</p>
-<p>During training, anneal <span class="math inline">\(\varepsilon\)</span> from high (e.g.&nbsp;1.0 i.e.&nbsp;fully random policy) and linearly decay to small value (e.g.&nbsp;0.05) over iterations.</p>
-<p>During evaluation, fix <span class="math inline">\(\varepsilon\)</span> to small values (0.05) to avoid getting stuck in loops.</p>
-<p>Can try various <span class="math inline">\(\varepsilon\)</span> decay schedules.</p>
+<p><strong><span class="math inline">\(\varepsilon\)</span></strong>: To encourage exploration, a parameter <span class="math inline">\(\varepsilon \in (0,1)\)</span> is introduced. Usually it’s chosen to be small e.g.&nbsp;<span class="math inline">\(0.05\)</span>. With probability <span class="math inline">\(\varepsilon\)</span>, a completely random action is chosen and with probability <span class="math inline">\(1-\varepsilon\)</span>, the action chosen is <span class="math inline">\(a_t = \argmax_{a_t} Q_{\theta}(s_t, a)\)</span>.</p>
+<p>During training, <span class="math inline">\(\varepsilon\)</span> is annealed from high (e.g.&nbsp;1.0 i.e.&nbsp;fully random policy) values to low (e.g.&nbsp;<span class="math inline">\(0.05\)</span>) values with a linearly decaying schedule.</p>
+<p>During evaluation, <span class="math inline">\(\varepsilon\)</span> is fixed to small values (0.05) to avoid getting stuck in loops.</p>
+<p>Can try various <span class="math inline">\(\varepsilon\)</span> decay schedules and also try keeping <span class="math inline">\(\varepsilon = 0\)</span>.</p>
 </section>
-<section id="components" class="level3">
-<h3 class="anchored" data-anchor-id="components">Components</h3>
-<p><strong>Replay Buffer</strong>:</p>
-<p>TODO</p>
-<ul>
-<li>Fix typos</li>
-<li>MC (on-policy) vs optimality (off-policy)</li>
-</ul>
+<section id="paper-details" class="level3">
+<h3 class="anchored" data-anchor-id="paper-details">Paper details</h3>
 
 
 </section>
