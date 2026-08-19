@@ -76,7 +76,6 @@ The standard solution to (2) is to use the iterative nature of updates to $Q_{\t
 $$y(s,a) = \mathbb{E}_{s'\sim p(\cdot \mid s,a)} [ r(s,a,s') + \gamma \max_{a'} Q^{(i-k)}(s',a')]$$
 
 
-
 To summarize, we will approximate the Q-function with a neural network that predicts the optimal action-value $Q^{*}(s,a)$ for all actions in one forward pass i.e. there is one output per action for $Q_{\theta}$. The network is trained using the Bellman optimality condition to define a target. The target also requires $Q^{*}$ values and to avoid training instabilities, we use a lagged version of $Q_{\theta}$ to compute the target. The simplest choice for the state can be the current image frame (RGB or grayscale). To inject information about velocity and acceleration, we can stack consecutive frames.
 
 As noted earlier, each loss term depends on one $(s,a,s',r)$ tuple. Each trajectory e.g. one instance of a game produces consecutive tuples 
@@ -85,9 +84,9 @@ $$(s_0, a_0, s_1, r_0, a_1, s_2, r_1, a_2, s_3, r_2, \ldots)$$
 
 which can be decomposed into tuples:
 
-$(s_0, a_0, s_1, r_0), (s_1, a_1, s_2, r_1), (s_2, a_2, s_3, r_2), \ldots$
+$$(s_0, a_0, s_1, r_0), (s_1, a_1, s_2, r_1), (s_2, a_2, s_3, r_2), \ldots$$
 
-These tuples are highly correlated which reduces the effective amount of information being collected. 
+These tuples are highly correlated which reduces the effective amount of information being collected. To break this correlation, one accumulates tuples from various trajectories into a buffer (the replay or experience replay buffer) of fixed size $N$. A batch of tuples is then sampled randomly which ensures that tuples from different trajectories are trained over in each batch.
 
 A subtle point: we are not approximating $Q^{\pi} \approx Q_{\theta}$. If we were, we would be on-policy i.e. we would need to collect tuples under the policy $\pi$, train $Q^{\theta}$ to approximate $Q^{\pi}$, improve the policy and then collect more tuples.
 
