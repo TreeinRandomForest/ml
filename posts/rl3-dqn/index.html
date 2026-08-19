@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-05-19">
+<meta name="dcterms.date" content="2026-08-12">
 
-<title>Reinforcement Learning Reading Group #2 - Prerequisites – Discovery</title>
+<title>Reinforcement Learning Reading Group #3 - Deep Q-learning (DQN) – Discovery</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -150,12 +150,12 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Reinforcement Learning Reading Group #2 - Prerequisites</h1>
+      <h1 class="title">Reinforcement Learning Reading Group #3 - Deep Q-learning (DQN)</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">rl</div>
                 <div class="quarto-category">reading group</div>
-                <div class="quarto-category">q-function</div>
-                <div class="quarto-category">value function</div>
+                <div class="quarto-category">dqn</div>
+                <div class="quarto-category">atari</div>
               </div>
                   </div>
   </div>
@@ -167,7 +167,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">May 19, 2026</p>
+        <p class="date">August 12, 2026</p>
       </div>
     </div>
     
@@ -186,86 +186,91 @@ window.Quarto = {
 
 
 
-<p><strong>IN PROGRESS</strong></p>
-<p>In the <a href="https://treeinrandomforest.github.io/ml/posts/rl1-intro/">last entry</a>, we covered the basic formalism of a Markov Decision Process (MDP). We looked at state and action spaces, rewards, trajectories and policies.</p>
-<p>In this write-up, we’ll look at two crucial quantities. Suppose, we are given the following:</p>
-<ul>
-<li><p>An environment i.e.&nbsp;a state space <span class="math inline">\(\mathcal{S}\)</span>, an action space <span class="math inline">\(\mathcal{A}\)</span> and a simulator (or real-life setup) that can execute the unknown (to us) transition function <span class="math inline">\(p(s' | s, a)\)</span>.</p></li>
-<li><p>A reward function <span class="math inline">\(r(s,a)\)</span> which can be used to compute trajectory level rewards <span class="math inline">\(R(\tau) = r(s_0, a_0) + \gamma r(s_1, a_1) + \gamma^2 r(s_2, a_2) + \ldots\)</span> where <span class="math inline">\(\gamma\)</span> is the discount factor (in <span class="math inline">\((0,1)\)</span>).</p></li>
-<li><p>A policy <span class="math inline">\(\pi(a | s)\)</span> that takes a state as an input and maps to an action. The policy can be determinstic (map state to one action) or stochastic (for a given state, produce a probability for picking each action).</p></li>
-</ul>
-<p>The central task in RL is to pick a good policy. Recall that a policy is a rule that maps states to actions i.e.&nbsp;<span class="math inline">\(s \mapsto a\)</span> (determinstic policy) or states to probabilities over actions <span class="math inline">\(s \mapsto (p(a_1), p(a_2), \ldots, p(a_N))\)</span> if there are N distinct actions. In short, policies tell an actor (also known as the <strong>agent</strong>) how to act or what decisions to make. Intuitively, a “good” policy will lead to trajectories <span class="math inline">\(\tau = s_0 \rightarrow a_0 \rightarrow s_1 \rightarrow a_1 \rightarrow \ldots\)</span> that have “high” rewards, <span class="math inline">\(R(\tau) = \Sigma_{i=0}^{T} \gamma^i r(s_i, a_i)\)</span>.</p>
-<p>To identify high-reward actions, it’s useful to compute two quantities:</p>
-<ul>
-<li><p>The “quality” score of a state <span class="math inline">\(s_t\)</span>. This quantity assesses if it’s desirable to land up in this state. Formally, this is called the <strong>state value function</strong> <span class="math inline">\(v(s)\)</span>. For convenience, <span class="math inline">\(v(s)\)</span> is also referred to as the value function.</p></li>
-<li><p>The “quality” score of an action in a given state. This quantity assesses how desirable it is to take an action in the given state. Formally, this is called the <strong>state-action value function</strong> <span class="math inline">\(Q(s, a)\)</span>. For convenience, <span class="math inline">\(Q(s,a)\)</span> is also called the Q-function or Q-value.</p></li>
-</ul>
-<p>Let’s define the two quantities.</p>
-<section id="state-action-value-function-qsa" class="level4">
-<h4 class="anchored" data-anchor-id="state-action-value-function-qsa">State-action value function <span class="math inline">\(Q(s,a)\)</span></h4>
-<p>Assume we’re given a policy <span class="math inline">\(\pi\)</span>, which lets us generate trajectories.</p>
-<p>Suppose, at time t in a trajectory, we land in state <span class="math inline">\(s_t\)</span> and are forced to take an action <span class="math inline">\(a_t\)</span>. The transition function will take into a state <span class="math inline">\(s_{t+1}\)</span> according to the probability <span class="math inline">\(p(s_{t+1}|s_t, a_t)\)</span>. We can now use the policy <span class="math inline">\(\pi\)</span> to generate the next action, land in a new state <span class="math inline">\(s_{t+2}\)</span> according to the transition function and so on till some stopping criterion is satisfied. At each step, we’ll get a reward and we can define a partial-trajectory reward known as <strong>reward to-go</strong>:</p>
-<p><span class="math display">\[G_t = r(s_t, a_t) + \gamma r(s_{t+1}, a_{t+1}) + \gamma^2 r(s_{t+2}, a_{t+2}) + \ldots = \Sigma_{t'=t}^{T} \gamma^{t'-t} r(s_{t'}, a_{t'})\]</span></p>
-<p>It might be helpful to set <span class="math inline">\(\gamma=1\)</span> to see that <span class="math inline">\(G_t\)</span> is simply the some of future rewards (“to-go”) starting from time <span class="math inline">\(t\)</span>. The notation <span class="math inline">\(G_t\)</span> is used to be consistent with Sutton and Barto’s book in case you use it although they start the sum at <span class="math inline">\(t+1\)</span> (different definition).</p>
-<p>To summarize, given a state <span class="math inline">\(s_t\)</span> at time <span class="math inline">\(t\)</span> and a forced action <span class="math inline">\(a_t\)</span> at time t, we can rollout the trajectory with policy <span class="math inline">\(\pi\)</span> and compute a number <span class="math inline">\(G_t\)</span> that’s the reward to-go.</p>
-<p>If we were to repeat this experiment, we would get a different trajectory after time <span class="math inline">\(t\)</span>. This is because:</p>
-<ul>
-<li><p>The policy might be stochastic and not determinstic i.e.&nbsp;<span class="math inline">\(\pi(s)\)</span> gives a distribution over actions (<span class="math inline">\(a_1\)</span> with probability 40%, <span class="math inline">\(a_2\)</span> with probability 60%) and repeated runs will choose different actions (see aside on sampling below).</p></li>
-<li><p>The transition function might be stochastic and not determinstic i.e.&nbsp;even if one takes the same action in the same state, <span class="math inline">\(p(s' | s, a)\)</span> defines a probability distribution over <span class="math inline">\(s'\)</span> and we’ll end up in different states in repeated runs.</p></li>
-</ul>
-<p><strong>Aside on sampling</strong>:</p>
-<p>Suppose, we have three possible actions:</p>
-<p><span class="math inline">\(a_1\)</span> with probability 0.4</p>
-<p><span class="math inline">\(a_2\)</span> with probability 0.5</p>
-<p><span class="math inline">\(a_3\)</span> with probability 0.1</p>
-<p>We could just choose <span class="math inline">\(a_2\)</span> since it has the highest probability. Another option is to <strong>sample</strong> i.e.&nbsp;pick different actions according to their probabilities, as shown i figure 1 below.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="images/sampling.svg" class="img-fluid figure-img"></p>
-<figcaption>Figure 1. Sampling from a distribution</figcaption>
-</figure>
-</div>
-<p>Since all the probabilities have to add up to 1, put them consecutively on the <span class="math inline">\([0,1]\)</span> interval. Sample a uniform random number and place it on the interval. In the figure, <span class="math inline">\(0.93\)</span> is drawn and placed. It lands in the interval “owned” by <span class="math inline">\(a_3\)</span> and so we would pick <span class="math inline">\(a_3\)</span>. In general the probability of a random number landing in one of the intervals is proportional to the length of the interval.</p>
-<p><strong>End of Aside</strong></p>
-<p>For each sub-trajectory starting at <span class="math inline">\(s_t\)</span> with action <span class="math inline">\(a_t\)</span>, we have one reward to-go value, <span class="math inline">\(G_t\)</span>. We can now define the “quality” of (<span class="math inline">\(s_t\)</span>, <span class="math inline">\(a_t\)</span>) as the average (over all trajectories generated beyond time <span class="math inline">\(t\)</span>) <span class="math inline">\(G_t\)</span>.</p>
-<p><span class="math display">\[Q(s_t, a_t) = \frac{1}{\text{number of trajectories}} \Sigma_{i=1}^{\text{num traj}} G_t^{(i)}\]</span></p>
-<p>This is written more formally as:</p>
-<p><span class="math display">\[Q(s_t, a_t) = \mathbb{E}_{s\sim p(.|s,a),a\sim \pi(s)}[G_t | s_t, a_t]\]</span></p>
-<p>We’ll unpack this shortly. Intuitively, you should think of <span class="math inline">\(Q(s_t,a_t)\)</span> as the “average discounted cumulative reward (reward to-go) if one is forced to take action <span class="math inline">\(a_t\)</span> in state <span class="math inline">\(s_t\)</span> and then take future actions according to the policy <span class="math inline">\(\pi\)</span>”. The part of using the policy <span class="math inline">\(\pi\)</span> to take future actions is crucial and is made explicit by writing <span class="math inline">\(Q^{\pi}(s_t,a_t)\)</span>.</p>
-<p>Let’s now unpack:</p>
-<p><span class="math display">\[Q^{\pi}(s_t, a_t) = \mathbb{E}_{s\sim p(.|s,a),a\sim \pi(s)}[G_t | s_t, a_t]\]</span></p>
-<p>The first important piece is <span class="math inline">\(\mathbb{E}\)</span>. This is called the <strong>expected value</strong>. More precisely, in probability theory, one works with objects called <strong>random variables</strong>. You can think of a random variable as a quantity take can take multiple values, each with a specific probability. The simplest example or a random variable is a coin toss i.e.</p>
-<p><span class="math display">\[X =
-\begin{cases}
-  0 &amp; \text{if heads with probability $p$}\\
-  1 &amp; \text{if tails with probability $1-p$}
-\end{cases}
+<p>This article covers implementation notes for Deep Q-learning (DQN) on Atari <a href="https://daiwk.github.io/assets/dqn.pdf">original nature paper</a>. The goal is to write down the distinct components and design choices before we write any code. Ideally, writing the code for DQN should be a purely mechanical activity although realistically, a few choices are made much clearer during implementation e.g.&nbsp;code optimizations and some design choices.</p>
+<div class="hidden">
+<p><span class="math display">\[
+\usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{arg\,max}
 \]</span></p>
-<p>The expected value of X i.e.&nbsp;<span class="math inline">\(\mathbb{E}X\)</span> is the average outcome i.e.</p>
-<p><span class="math display">\[\mathbb{E} = 0.p + 1.(1-p) = 1-p\]</span></p>
-<p>This might look mysterious so let’s look at an illustrative example. Suppose you are given the following data for test scores for 10 students:</p>
-<p><span class="math display">\[3,3,3,3,5,5,7,9,9,9\]</span></p>
-<p>The average score would be:</p>
-<p><span class="math display">\[\frac{3+3+3+3+5+5+7+9+9+9}{10} = \frac{3*4 + 5*2 + 7*1 + 9*3}{10} = 3*\frac{4}{10} + 5*\frac{2}{10} + 7*\frac{1}{10} + 9*\frac{3}{10}\]</span></p>
-<p>The ratios are precisely the probabilities of picking students with certain scores i.e.&nbsp;the % of students with each unique score:</p>
-<p><span class="math display">\[3*p(3) + 5*p(5) + 7*p(7) + 9*p(9)\]</span></p>
-<p>In other words, the average is the “sum of each unique value multiplied by the probability of observing the value”. Mathematically, we could write:</p>
-<p><span class="math display">\[\mathbb{E}X = \Sigma_{x} x * p(x)\]</span></p>
-<p>where the sum <span class="math inline">\(\Sigma_{x}\)</span> is over all unique values <span class="math inline">\(X\)</span> can take. Often the probability distribution is made explicit by writing <span class="math inline">\(\mathbb{E}_{x \sim p(x)}X\)</span>.</p>
-<p>Going back to <span class="math inline">\(Q^{\pi}\)</span>:</p>
-<p><span class="math display">\[Q^{\pi}(s_t, a_t) = \mathbb{E}_{s\sim p(.|s,a),a\sim \pi(s)}[G_t | s_t, a_t]\]</span></p>
-<p>We see that the random variable is <span class="math inline">\(G_t = \Sigma_{t'=t}^{T} \gamma^{t'-t} r(s_t,a_t)\)</span>. The <span class="math inline">\(| s_t, a_t\)</span> part signifies that we have a known fixed state and known fixed action at time <span class="math inline">\(t\)</span>. Lastly, <span class="math inline">\(\mathbb{E}_{s\sim p(.|s,a),a\sim \pi(s)}\)</span> specifies that actions <span class="math inline">\(s\)</span> are sampled from the transition function <span class="math inline">\(p(s'|s,a)\)</span> and actions are sampled from the policy <span class="math inline">\(\pi(s|a)\)</span>.</p>
-<p>Theoretically, you could think of computing <span class="math inline">\(Q^{\pi}(s_t,a_t)\)</span> as follows:</p>
+</div>
+<p>Recall that <span class="math inline">\(Q^{\pi}(s,a)\)</span> satisfies the Bellman equation:</p>
+<p><span class="math display">\[Q^{\pi}(s,a) = \mathbb{E}_{s'\sim p(\cdot \mid s,a),a'\sim \pi(\cdot \mid s')} [ r(s,a,s') + \gamma Q^{\pi}(s',a')]\]</span></p>
+<p>(including <span class="math inline">\(r(s,a,s')\)</span> in the expectation for environments with stochastic rewards).</p>
+<p>Note that we can take the expectation over <span class="math inline">\(a'\)</span> “into” the linear sum i.e.</p>
+<p><span class="math display">\[Q^{\pi}(s,a) = \mathbb{E}_{s'\sim p(\cdot \mid s,a)} [ r(s,a,s') + \gamma \mathbb{E}_{a'\sim \pi(\cdot \mid s')} Q^{\pi}(s',a')]\]</span></p>
+<p>The optimal Q-value function satisfies:</p>
+<p><span class="math display">\[Q^{*}(s,a) = \mathbb{E}_{s'\sim p(\cdot \mid s,a)} [ r(s,a,s') + \gamma \max_{a'} Q^{*}(s',a')]\]</span></p>
+<p>We want to learn the optimal <span class="math inline">\(Q^{*}(s,a)\)</span>. This quantity lets us pick optimal actions in any state <span class="math inline">\(s\)</span> by picking the action <span class="math inline">\(a\)</span> that maximizes <span class="math inline">\(Q^{*}(s,a)\)</span>. In other words, knowing <span class="math inline">\(Q^{*}\)</span> defines a determinstic policy by <span class="math inline">\(\pi(a\mid s) = \argmax_{a} Q^{*}(s,a)\)</span> (as long as no two actions have exactly the same value for a given state). Note that the “max” is also an expectation under a determinstic policy. This can be seen as follows - the definition of expectation is:</p>
+<p><span class="math display">\[\mathbb{E}_{a'\sim \pi} Q^{\pi}(s',a') = \Sigma_{a'} \pi(a'\mid s') Q^{\pi}(s',a')\]</span></p>
+<p>Under a determinstic policy, one <span class="math inline">\(a'\)</span> has probability 1 while the rest have probabilities 0 i.e.</p>
+<p><span class="math display">\[\mathbb{E}_{a'\sim \pi} Q^{\pi}(s',a') = \Sigma_{a'} \pi(a'\mid s') Q^{\pi}(s',a') = Q^{\pi}(s',\pi(s'))\]</span></p>
+<p>For <span class="math inline">\(Q^{*}\)</span>, this action is precisely the one that maximizes <span class="math inline">\(Q^{*}(s,\cdot)\)</span> which results in the Bellman optimality equation consisting of the <span class="math inline">\(\max\)</span>.</p>
+<p>These Bellman equations are constraints i.e.&nbsp;they require consistency between <span class="math inline">\(Q^{*}/Q^{\pi}\)</span> evaluated for various (s,a) pairs. There is one constraint/equation/consistency condition for each <span class="math inline">\((s,a)\)</span> pair. We saw this explicitly in the tabular Q-learning <a href="https://github.com/TreeinRandomForest/RL-intro/blob/main/QL/gridworld.py">example</a>. Estimating <span class="math inline">\(Q^{\pi}\)</span> for each <span class="math inline">\((s,a)\)</span> pair doesn’t scale well as state-space and action-space sizes increase.</p>
+<p>One can instead use a function approximator i.e.&nbsp;a model that approximates the <span class="math inline">\(Q\)</span> function:</p>
+<p><span class="math display">\[Q^{*}(s,a) \approx Q_{\theta}(s,a)\]</span></p>
+<p>where <span class="math inline">\(\theta\)</span> are the model’s weights if one uses a linear model or a neural network.</p>
+<p>In practice, the neural network takes the state <span class="math inline">\(s\)</span> (stacked image frames for Atari) as inputs and produces <span class="math inline">\(\lvert\mathcal{A}\rvert\)</span> (number of actions) Q-values as outputs.</p>
+<p>Of course, we first need to train the neural network using some supervised objective i.e.&nbsp;by minimizing a loss of the form:</p>
+<p><span class="math display">\[L = \mathbb{E}_{s,a}[Q_{\theta}(s,a) - y(s,a)]^2\]</span></p>
+<p>i.e.&nbsp;a mean squared loss error with some target value <span class="math inline">\(y(s,a)\)</span> averaged over the distribution of state-action pairs <span class="math inline">\((s,a)\)</span> seen in the data (replay buffer).</p>
+<p>The Bellman equation tells us exactly what the target should be:</p>
+<p><span class="math display">\[y(s,a) = \mathbb{E}_{s'\sim p(\cdot \mid s,a)} [ r(s,a,s') + \gamma \max_{a'} Q^{*}(s',a')]\]</span></p>
+<p>The expectation is approximated by a single sample(!) as:</p>
+<p><span class="math display">\[y(s,a) =  [r(s,a,s') + \gamma \max_{a'} Q^{*}(s',a')]\]</span></p>
+<p><strong>Note</strong>: In taking a single sample, we introduce higher variance into the <span class="math inline">\(y(s,a)\)</span> computation. As shown below (point 2), since we don’t know <span class="math inline">\(Q^{*}\)</span>, we use a noisy estimate, <span class="math inline">\(Q^{(i-k)}\)</span>. The max chooses the <span class="math inline">\(a'\)</span> that maximizes this estimate which preferentially chooses actions that had a positive noise fluctuation. This will motivate Double DQN.</p>
+<p>Computing <span class="math inline">\(y(s,a)\)</span> requires two components:</p>
+<ol type="1">
+<li><p>Tuples <span class="math inline">\((s,a,s',r)\)</span> where <span class="math inline">\((s,a)\)</span> label the state-action pair for which the constraint is being applied. <span class="math inline">\(s'\)</span> is the new state transitioned into for the single sample chosen to approximate the expectation value. <span class="math inline">\(r\)</span> is the observed reward since we usually don’t know the reward function and can’t compute <span class="math inline">\(r(s,a,s')\)</span> but can observe this value.</p></li>
+<li><p>The target also needs <span class="math inline">\(Q^{*}(s',a')\)</span>. But this is the quantity the neural network is trying to approximate. So the loss looks like <span class="math inline">\([Q_{\theta}(s,a) - y(s,a)]^2\)</span> where both the predicted value and the target depend on <span class="math inline">\(\theta\)</span>. While we’ll explore this more quantitatively, this leads to unstable training since it’s equivalent to supervised learning where the prediction and the label can both be changed by gradient descent. Instead, like in the tabular case, we use an iterative approach.</p></li>
+</ol>
+<p>The standard solution to (2) is to use the iterative nature of updates to <span class="math inline">\(Q_{\theta}\)</span>. If the current model is <span class="math inline">\(Q^{(i)}_{\theta}\)</span>, the target <span class="math inline">\(y(s,a)\)</span> is computed using a lagged model i.e.&nbsp;with a smaller <span class="math inline">\(i\)</span>. For example, we might use the model every 10th iteration to compute the target. So, iterations <span class="math inline">\(i=1\)</span> to <span class="math inline">\(i=9\)</span> would use <span class="math inline">\(Q^{(0)}\)</span> to compute the target. Iterations <span class="math inline">\(i=10\)</span> to <span class="math inline">\(i=19\)</span> would use <span class="math inline">\(Q^{(10)}\)</span> to compute targets and so on. The target equation for iteration <span class="math inline">\(i\)</span> updates to:</p>
+<p><span class="math display">\[y(s,a) = \mathbb{E}_{s'\sim p(\cdot \mid s,a)} [ r(s,a,s') + \gamma \max_{a'} Q^{(i-k)}(s',a')]\]</span></p>
+<p>To summarize, we will approximate the Q-function with a neural network that predicts the optimal action-value <span class="math inline">\(Q^{*}(s,a)\)</span> for all actions in one forward pass i.e.&nbsp;there is one output per action for <span class="math inline">\(Q_{\theta}\)</span>. The network is trained using the Bellman optimality condition to define a target. The target also requires <span class="math inline">\(Q^{*}\)</span> values and to avoid training instabilities, we use a lagged version of <span class="math inline">\(Q_{\theta}\)</span> to compute the target. The simplest choice for the state can be the current image frame (RGB or grayscale). To inject information about velocity and acceleration, we can stack consecutive frames.</p>
+<p>As noted earlier, each loss term depends on one <span class="math inline">\((s,a,s',r)\)</span> tuple. Each trajectory e.g.&nbsp;one instance of a game produces consecutive tuples</p>
+<p><span class="math display">\[(s_0, a_0, s_1, r_0, a_1, s_2, r_1, a_2, s_3, r_2, \ldots)\]</span></p>
+<p>which can be decomposed into tuples:</p>
+<p><span class="math inline">\((s_0, a_0, s_1, r_0), (s_1, a_1, s_2, r_1), (s_2, a_2, s_3, r_2), \ldots\)</span></p>
+<p>These tuples are highly correlated which reduces the effective amount of information being collected.</p>
+<p>A subtle point: we are not approximating <span class="math inline">\(Q^{\pi} \approx Q_{\theta}\)</span>. If we were, we would be on-policy i.e.&nbsp;we would need to collect tuples under the policy <span class="math inline">\(\pi\)</span>, train <span class="math inline">\(Q^{\theta}\)</span> to approximate <span class="math inline">\(Q^{\pi}\)</span>, improve the policy and then collect more tuples.</p>
+<p>We are instead learning <span class="math inline">\(Q^{*}\)</span>. This is independent of the data collection policy! It is by definition at least as good as any <span class="math inline">\(Q^{\pi}\)</span> i.e.</p>
+<p><span class="math display">\[Q^{*}(s,a) \geq Q^{\pi}(s,a) \forall (s,a) \forall \pi\]</span></p>
+<p>To learn <span class="math inline">\(Q^{*}\)</span>, it doesn’t matter what policy the data is collected under and we can mix various data collection policies together i.e.&nbsp;we can have a buffer/array of tuples collected under different policies.</p>
+<p><strong>Fine-print 1</strong>: The data collection policies are relevant for <em>coverage</em>. If a <span class="math inline">\((s,a)\)</span> pair is never visited, we can’t compute <span class="math inline">\(Q^{*}(s,a)\)</span>. But as long as we keep visiting <span class="math inline">\((s,a)\)</span> under any policy, we have some data that can be used to infer <span class="math inline">\(Q^{*}(s,a)\)</span>.</p>
+<p><strong>Fine-print 2</strong>: For tabular Q-learning, fine-print 1 applies. For function approximation (e.g.&nbsp;using an NN to approximate <span class="math inline">\(Q^{*}\)</span>, not only does fine-print 1 apply but the distribution of tuples is important during training because SGD will tradeoff approximation errors in seen data (reflected by the loss) with approximation errors in unseen data. More precisely, (a) there are no guarantees on unseen data - the approximation error might be large or small, and (b) even in seen tuples, under-represented tuples might have larger errors than well-represented tuples.</p>
+<p>In general, the combination of function approximation (neural net in our case), bootstrapping (using <span class="math inline">\(Q_{\theta}\)</span> to define the target), and off-policy learning (buffer of tuples collected under different policies) can actually cause learning to become unstable where <span class="math inline">\(Q_{\theta}(s,a) \rightarrow \infty\)</span> in theory. In practice, these values can grow to unrealistic values but can also recover. This is known as the <strong>deadly triad</strong>. Small errors can compound rapidly e.g.&nbsp;see <a href="https://arxiv.org/pdf/1812.02648">paper</a>.</p>
+<section id="initial-environment" class="level3">
+<h3 class="anchored" data-anchor-id="initial-environment">Initial Environment</h3>
+<p>Do all initial experiments with <strong>Pong</strong>. This is especially helpful for debugging.</p>
+<p>A good candidate for the next game is <strong>Breakout</strong> (see famous story about Woz and Jobs at Atari).</p>
+<p>Run multiple seeds - at least 3-5 per experiment.</p>
+<p>Use <a href="https://gymnasium.farama.org/v0.29.0/environments/atari/">Gymnasium</a>. <a href="https://pypi.org/project/ale-py/">ale-py</a> has the games.</p>
+</section>
+<section id="hardware" class="level2">
+<h2 class="anchored" data-anchor-id="hardware">Hardware</h2>
+<p>NVIDIA 3090/4090 should be enough since env is CPU-bound. Ensure you have enough vCPUs available.</p>
+<section id="ablations" class="level3">
+<h3 class="anchored" data-anchor-id="ablations">Ablations</h3>
+<p>The following is a non-exhaustive list of ablations:</p>
+<p><strong>Replay Buffer Size</strong>: The replay buffer breaks correlations between tuples. Tuples are added to the buffer and old ones are evicted to ensure the buffer doesn’t exceed a maximum size. As the buffer is made smaller, we approach a more online sampling procedure where all tuples are from recent episodes and are therefore, more correlated.</p>
+<p>Vary the buffer size e.g.&nbsp;1, 100, 10000, 1M and observe the learning curves.</p>
+<p><strong>Frame Stacking</strong>: For various games, change the stacking size e.g.&nbsp;1, 2, 4, 8 etc. to observe the impact including higher-derivative information (velocity, acceleration etc.)</p>
+<p><strong>Target Network Freezing</strong>: Use the current <span class="math inline">\(Q\)</span> network to calculate the target. A more comprehensive experiment would change the freezing frequency from 1 (no freezing) to 10k (paper’s value) to a much higher value.</p>
+<p><strong><span class="math inline">\(\varepsilon\)</span></strong>:</p>
+<p>During training, anneal <span class="math inline">\(\varepsilon\)</span> from high (e.g.&nbsp;1.0 i.e.&nbsp;fully random policy) and linearly decay to small value (e.g.&nbsp;0.05) over iterations.</p>
+<p>During evaluation, fix <span class="math inline">\(\varepsilon\)</span> to small values (0.05) to avoid getting stuck in loops.</p>
+<p>Can try various <span class="math inline">\(\varepsilon\)</span> decay schedules.</p>
+</section>
+<section id="components" class="level3">
+<h3 class="anchored" data-anchor-id="components">Components</h3>
+<p><strong>Replay Buffer</strong>:</p>
+<p>TODO</p>
 <ul>
-<li><p>Generate every possible trajectory start at time <span class="math inline">\(t=0\)</span> by taking actions from policy <span class="math inline">\(\pi\)</span> and letting states evolve according to the transition function <span class="math inline">\(p(s'|s,a)\)</span>.</p></li>
-<li><p>Select the subset of trajectories that hit state <span class="math inline">\(s_t\)</span> at time <span class="math inline">\(t\)</span> and where the action taken is <span class="math inline">\(a_t\)</span> at time <span class="math inline">\(t\)</span>.</p></li>
-<li><p>For the subset of trajectories, compute the discounted reward to-go <span class="math inline">\(G_t\)</span> for every trajectory.</p></li>
-<li><p>Average these reward to-go values to get <span class="math inline">\(Q^{\pi}(s_t,a_t)\)</span>.</p></li>
+<li>Fix typos</li>
+<li>MC (on-policy) vs optimality (off-policy)</li>
 </ul>
-<p>This is computationally intractable. For example, if we have <span class="math inline">\(S\)</span> distinct states and <span class="math inline">\(A\)</span> distinct actions, and each trajectory has <span class="math inline">\(T\)</span> time-steps, we have a total of <span class="math inline">\((S*A)^T\)</span> trajectories. Even for small values of <span class="math inline">\(S, A, T\)</span> e.g.&nbsp;<span class="math inline">\(S=10, A=10, T=10\)</span>, this is <span class="math inline">\(100^{10} = 10^{20}\)</span> i.e.&nbsp;100 billion billion. If it takes one second to do one rollout, it would take <span class="math inline">\(\sim 10^{12}\)</span> years to generate every trajectory sequentially. This is a trillion years (the universe is about 14 billion years old).</p>
-<p>We now understand how to evaluate the quality of a state-action pair using <span class="math inline">\(Q^{\pi}\)</span>. Mathematically (and programmatically), <span class="math inline">\(Q^{\pi}\)</span> is a function that maps a state-action pair to a number.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

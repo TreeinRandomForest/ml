@@ -9,8 +9,109 @@
 <link>https://treeinrandomforest.github.io/ml/</link>
 <atom:link href="https://treeinrandomforest.github.io/ml/index.xml" rel="self" type="application/rss+xml"/>
 <description>Experiments with ML and Systems</description>
-<generator>quarto-1.9.37</generator>
-<lastBuildDate>Tue, 19 May 2026 00:00:00 GMT</lastBuildDate>
+<generator>quarto-1.10.18</generator>
+<lastBuildDate>Wed, 12 Aug 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Reinforcement Learning Reading Group #3 - Deep Q-learning (DQN)</title>
+  <link>https://treeinrandomforest.github.io/ml/posts/rl3-dqn/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>This article covers implementation notes for Deep Q-learning (DQN) on Atari <a href="https://daiwk.github.io/assets/dqn.pdf">original nature paper</a>. The goal is to write down the distinct components and design choices before we write any code. Ideally, writing the code for DQN should be a purely mechanical activity although realistically, a few choices are made much clearer during implementation e.g.&nbsp;code optimizations and some design choices.</p>
+<div class="hidden">
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cusepackage%7Bamsmath%7D%0A%5CDeclareMathOperator*%7B%5Cargmax%7D%7Barg%5C,max%7D%0A"></p>
+</div>
+<p>Recall that <img src="https://latex.codecogs.com/png.latex?Q%5E%7B%5Cpi%7D(s,a)"> satisfies the Bellman equation:</p>
+<p><img src="https://latex.codecogs.com/png.latex?Q%5E%7B%5Cpi%7D(s,a)%20=%20%5Cmathbb%7BE%7D_%7Bs'%5Csim%20p(%5Ccdot%20%5Cmid%20s,a),a'%5Csim%20%5Cpi(%5Ccdot%20%5Cmid%20s')%7D%20%5B%20r(s,a,s')%20+%20%5Cgamma%20Q%5E%7B%5Cpi%7D(s',a')%5D"></p>
+<p>(including <img src="https://latex.codecogs.com/png.latex?r(s,a,s')"> in the expectation for environments with stochastic rewards).</p>
+<p>Note that we can take the expectation over <img src="https://latex.codecogs.com/png.latex?a'"> “into” the linear sum i.e.</p>
+<p><img src="https://latex.codecogs.com/png.latex?Q%5E%7B%5Cpi%7D(s,a)%20=%20%5Cmathbb%7BE%7D_%7Bs'%5Csim%20p(%5Ccdot%20%5Cmid%20s,a)%7D%20%5B%20r(s,a,s')%20+%20%5Cgamma%20%5Cmathbb%7BE%7D_%7Ba'%5Csim%20%5Cpi(%5Ccdot%20%5Cmid%20s')%7D%20Q%5E%7B%5Cpi%7D(s',a')%5D"></p>
+<p>The optimal Q-value function satisfies:</p>
+<p><img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D(s,a)%20=%20%5Cmathbb%7BE%7D_%7Bs'%5Csim%20p(%5Ccdot%20%5Cmid%20s,a)%7D%20%5B%20r(s,a,s')%20+%20%5Cgamma%20%5Cmax_%7Ba'%7D%20Q%5E%7B*%7D(s',a')%5D"></p>
+<p>We want to learn the optimal <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D(s,a)">. This quantity lets us pick optimal actions in any state <img src="https://latex.codecogs.com/png.latex?s"> by picking the action <img src="https://latex.codecogs.com/png.latex?a"> that maximizes <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D(s,a)">. In other words, knowing <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D"> defines a determinstic policy by <img src="https://latex.codecogs.com/png.latex?%5Cpi(a%5Cmid%20s)%20=%20%5Cargmax_%7Ba%7D%20Q%5E%7B*%7D(s,a)"> (as long as no two actions have exactly the same value for a given state). Note that the “max” is also an expectation under a determinstic policy. This can be seen as follows - the definition of expectation is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BE%7D_%7Ba'%5Csim%20%5Cpi%7D%20Q%5E%7B%5Cpi%7D(s',a')%20=%20%5CSigma_%7Ba'%7D%20%5Cpi(a'%5Cmid%20s')%20Q%5E%7B%5Cpi%7D(s',a')"></p>
+<p>Under a determinstic policy, one <img src="https://latex.codecogs.com/png.latex?a'"> has probability 1 while the rest have probabilities 0 i.e.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BE%7D_%7Ba'%5Csim%20%5Cpi%7D%20Q%5E%7B%5Cpi%7D(s',a')%20=%20%5CSigma_%7Ba'%7D%20%5Cpi(a'%5Cmid%20s')%20Q%5E%7B%5Cpi%7D(s',a')%20=%20Q%5E%7B%5Cpi%7D(s',%5Cpi(s'))"></p>
+<p>For <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D">, this action is precisely the one that maximizes <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D(s,%5Ccdot)"> which results in the Bellman optimality equation consisting of the <img src="https://latex.codecogs.com/png.latex?%5Cmax">.</p>
+<p>These Bellman equations are constraints i.e.&nbsp;they require consistency between <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D/Q%5E%7B%5Cpi%7D"> evaluated for various (s,a) pairs. There is one constraint/equation/consistency condition for each <img src="https://latex.codecogs.com/png.latex?(s,a)"> pair. We saw this explicitly in the tabular Q-learning <a href="https://github.com/TreeinRandomForest/RL-intro/blob/main/QL/gridworld.py">example</a>. Estimating <img src="https://latex.codecogs.com/png.latex?Q%5E%7B%5Cpi%7D"> for each <img src="https://latex.codecogs.com/png.latex?(s,a)"> pair doesn’t scale well as state-space and action-space sizes increase.</p>
+<p>One can instead use a function approximator i.e.&nbsp;a model that approximates the <img src="https://latex.codecogs.com/png.latex?Q"> function:</p>
+<p><img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D(s,a)%20%5Capprox%20Q_%7B%5Ctheta%7D(s,a)"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> are the model’s weights if one uses a linear model or a neural network.</p>
+<p>In practice, the neural network takes the state <img src="https://latex.codecogs.com/png.latex?s"> (stacked image frames for Atari) as inputs and produces <img src="https://latex.codecogs.com/png.latex?%5Clvert%5Cmathcal%7BA%7D%5Crvert"> (number of actions) Q-values as outputs.</p>
+<p>Of course, we first need to train the neural network using some supervised objective i.e.&nbsp;by minimizing a loss of the form:</p>
+<p><img src="https://latex.codecogs.com/png.latex?L%20=%20%5Cmathbb%7BE%7D_%7Bs,a%7D%5BQ_%7B%5Ctheta%7D(s,a)%20-%20y(s,a)%5D%5E2"></p>
+<p>i.e.&nbsp;a mean squared loss error with some target value <img src="https://latex.codecogs.com/png.latex?y(s,a)"> averaged over the distribution of state-action pairs <img src="https://latex.codecogs.com/png.latex?(s,a)"> seen in the data (replay buffer).</p>
+<p>The Bellman equation tells us exactly what the target should be:</p>
+<p><img src="https://latex.codecogs.com/png.latex?y(s,a)%20=%20%5Cmathbb%7BE%7D_%7Bs'%5Csim%20p(%5Ccdot%20%5Cmid%20s,a)%7D%20%5B%20r(s,a,s')%20+%20%5Cgamma%20%5Cmax_%7Ba'%7D%20Q%5E%7B*%7D(s',a')%5D"></p>
+<p>The expectation is approximated by a single sample(!) as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?y(s,a)%20=%20%20%5Br(s,a,s')%20+%20%5Cgamma%20%5Cmax_%7Ba'%7D%20Q%5E%7B*%7D(s',a')%5D"></p>
+<p><strong>Note</strong>: In taking a single sample, we introduce higher variance into the <img src="https://latex.codecogs.com/png.latex?y(s,a)"> computation. As shown below (point 2), since we don’t know <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D">, we use a noisy estimate, <img src="https://latex.codecogs.com/png.latex?Q%5E%7B(i-k)%7D">. The max chooses the <img src="https://latex.codecogs.com/png.latex?a'"> that maximizes this estimate which preferentially chooses actions that had a positive noise fluctuation. This will motivate Double DQN.</p>
+<p>Computing <img src="https://latex.codecogs.com/png.latex?y(s,a)"> requires two components:</p>
+<ol type="1">
+<li><p>Tuples <img src="https://latex.codecogs.com/png.latex?(s,a,s',r)"> where <img src="https://latex.codecogs.com/png.latex?(s,a)"> label the state-action pair for which the constraint is being applied. <img src="https://latex.codecogs.com/png.latex?s'"> is the new state transitioned into for the single sample chosen to approximate the expectation value. <img src="https://latex.codecogs.com/png.latex?r"> is the observed reward since we usually don’t know the reward function and can’t compute <img src="https://latex.codecogs.com/png.latex?r(s,a,s')"> but can observe this value.</p></li>
+<li><p>The target also needs <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D(s',a')">. But this is the quantity the neural network is trying to approximate. So the loss looks like <img src="https://latex.codecogs.com/png.latex?%5BQ_%7B%5Ctheta%7D(s,a)%20-%20y(s,a)%5D%5E2"> where both the predicted value and the target depend on <img src="https://latex.codecogs.com/png.latex?%5Ctheta">. While we’ll explore this more quantitatively, this leads to unstable training since it’s equivalent to supervised learning where the prediction and the label can both be changed by gradient descent. Instead, like in the tabular case, we use an iterative approach.</p></li>
+</ol>
+<p>The standard solution to (2) is to use the iterative nature of updates to <img src="https://latex.codecogs.com/png.latex?Q_%7B%5Ctheta%7D">. If the current model is <img src="https://latex.codecogs.com/png.latex?Q%5E%7B(i)%7D_%7B%5Ctheta%7D">, the target <img src="https://latex.codecogs.com/png.latex?y(s,a)"> is computed using a lagged model i.e.&nbsp;with a smaller <img src="https://latex.codecogs.com/png.latex?i">. For example, we might use the model every 10th iteration to compute the target. So, iterations <img src="https://latex.codecogs.com/png.latex?i=1"> to <img src="https://latex.codecogs.com/png.latex?i=9"> would use <img src="https://latex.codecogs.com/png.latex?Q%5E%7B(0)%7D"> to compute the target. Iterations <img src="https://latex.codecogs.com/png.latex?i=10"> to <img src="https://latex.codecogs.com/png.latex?i=19"> would use <img src="https://latex.codecogs.com/png.latex?Q%5E%7B(10)%7D"> to compute targets and so on. The target equation for iteration <img src="https://latex.codecogs.com/png.latex?i"> updates to:</p>
+<p><img src="https://latex.codecogs.com/png.latex?y(s,a)%20=%20%5Cmathbb%7BE%7D_%7Bs'%5Csim%20p(%5Ccdot%20%5Cmid%20s,a)%7D%20%5B%20r(s,a,s')%20+%20%5Cgamma%20%5Cmax_%7Ba'%7D%20Q%5E%7B(i-k)%7D(s',a')%5D"></p>
+<p>To summarize, we will approximate the Q-function with a neural network that predicts the optimal action-value <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D(s,a)"> for all actions in one forward pass i.e.&nbsp;there is one output per action for <img src="https://latex.codecogs.com/png.latex?Q_%7B%5Ctheta%7D">. The network is trained using the Bellman optimality condition to define a target. The target also requires <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D"> values and to avoid training instabilities, we use a lagged version of <img src="https://latex.codecogs.com/png.latex?Q_%7B%5Ctheta%7D"> to compute the target. The simplest choice for the state can be the current image frame (RGB or grayscale). To inject information about velocity and acceleration, we can stack consecutive frames.</p>
+<p>As noted earlier, each loss term depends on one <img src="https://latex.codecogs.com/png.latex?(s,a,s',r)"> tuple. Each trajectory e.g.&nbsp;one instance of a game produces consecutive tuples</p>
+<p><img src="https://latex.codecogs.com/png.latex?(s_0,%20a_0,%20s_1,%20r_0,%20a_1,%20s_2,%20r_1,%20a_2,%20s_3,%20r_2,%20%5Cldots)"></p>
+<p>which can be decomposed into tuples:</p>
+<p><img src="https://latex.codecogs.com/png.latex?(s_0,%20a_0,%20s_1,%20r_0),%20(s_1,%20a_1,%20s_2,%20r_1),%20(s_2,%20a_2,%20s_3,%20r_2),%20%5Cldots"></p>
+<p>These tuples are highly correlated which reduces the effective amount of information being collected.</p>
+<p>A subtle point: we are not approximating <img src="https://latex.codecogs.com/png.latex?Q%5E%7B%5Cpi%7D%20%5Capprox%20Q_%7B%5Ctheta%7D">. If we were, we would be on-policy i.e.&nbsp;we would need to collect tuples under the policy <img src="https://latex.codecogs.com/png.latex?%5Cpi">, train <img src="https://latex.codecogs.com/png.latex?Q%5E%7B%5Ctheta%7D"> to approximate <img src="https://latex.codecogs.com/png.latex?Q%5E%7B%5Cpi%7D">, improve the policy and then collect more tuples.</p>
+<p>We are instead learning <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D">. This is independent of the data collection policy! It is by definition at least as good as any <img src="https://latex.codecogs.com/png.latex?Q%5E%7B%5Cpi%7D"> i.e.</p>
+<p><img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D(s,a)%20%5Cgeq%20Q%5E%7B%5Cpi%7D(s,a)%20%5Cforall%20(s,a)%20%5Cforall%20%5Cpi"></p>
+<p>To learn <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D">, it doesn’t matter what policy the data is collected under and we can mix various data collection policies together i.e.&nbsp;we can have a buffer/array of tuples collected under different policies.</p>
+<p><strong>Fine-print 1</strong>: The data collection policies are relevant for <em>coverage</em>. If a <img src="https://latex.codecogs.com/png.latex?(s,a)"> pair is never visited, we can’t compute <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D(s,a)">. But as long as we keep visiting <img src="https://latex.codecogs.com/png.latex?(s,a)"> under any policy, we have some data that can be used to infer <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D(s,a)">.</p>
+<p><strong>Fine-print 2</strong>: For tabular Q-learning, fine-print 1 applies. For function approximation (e.g.&nbsp;using an NN to approximate <img src="https://latex.codecogs.com/png.latex?Q%5E%7B*%7D">, not only does fine-print 1 apply but the distribution of tuples is important during training because SGD will tradeoff approximation errors in seen data (reflected by the loss) with approximation errors in unseen data. More precisely, (a) there are no guarantees on unseen data - the approximation error might be large or small, and (b) even in seen tuples, under-represented tuples might have larger errors than well-represented tuples.</p>
+<p>In general, the combination of function approximation (neural net in our case), bootstrapping (using <img src="https://latex.codecogs.com/png.latex?Q_%7B%5Ctheta%7D"> to define the target), and off-policy learning (buffer of tuples collected under different policies) can actually cause learning to become unstable where <img src="https://latex.codecogs.com/png.latex?Q_%7B%5Ctheta%7D(s,a)%20%5Crightarrow%20%5Cinfty"> in theory. In practice, these values can grow to unrealistic values but can also recover. This is known as the <strong>deadly triad</strong>. Small errors can compound rapidly e.g.&nbsp;see <a href="https://arxiv.org/pdf/1812.02648">paper</a>.</p>
+<section id="initial-environment" class="level3">
+<h3 class="anchored" data-anchor-id="initial-environment">Initial Environment</h3>
+<p>Do all initial experiments with <strong>Pong</strong>. This is especially helpful for debugging.</p>
+<p>A good candidate for the next game is <strong>Breakout</strong> (see famous story about Woz and Jobs at Atari).</p>
+<p>Run multiple seeds - at least 3-5 per experiment.</p>
+<p>Use <a href="https://gymnasium.farama.org/v0.29.0/environments/atari/">Gymnasium</a>. <a href="https://pypi.org/project/ale-py/">ale-py</a> has the games.</p>
+</section>
+<section id="hardware" class="level2">
+<h2 class="anchored" data-anchor-id="hardware">Hardware</h2>
+<p>NVIDIA 3090/4090 should be enough since env is CPU-bound. Ensure you have enough vCPUs available.</p>
+<section id="ablations" class="level3">
+<h3 class="anchored" data-anchor-id="ablations">Ablations</h3>
+<p>The following is a non-exhaustive list of ablations:</p>
+<p><strong>Replay Buffer Size</strong>: The replay buffer breaks correlations between tuples. Tuples are added to the buffer and old ones are evicted to ensure the buffer doesn’t exceed a maximum size. As the buffer is made smaller, we approach a more online sampling procedure where all tuples are from recent episodes and are therefore, more correlated.</p>
+<p>Vary the buffer size e.g.&nbsp;1, 100, 10000, 1M and observe the learning curves.</p>
+<p><strong>Frame Stacking</strong>: For various games, change the stacking size e.g.&nbsp;1, 2, 4, 8 etc. to observe the impact including higher-derivative information (velocity, acceleration etc.)</p>
+<p><strong>Target Network Freezing</strong>: Use the current <img src="https://latex.codecogs.com/png.latex?Q"> network to calculate the target. A more comprehensive experiment would change the freezing frequency from 1 (no freezing) to 10k (paper’s value) to a much higher value.</p>
+<p><strong><img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon"></strong>:</p>
+<p>During training, anneal <img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon"> from high (e.g.&nbsp;1.0 i.e.&nbsp;fully random policy) and linearly decay to small value (e.g.&nbsp;0.05) over iterations.</p>
+<p>During evaluation, fix <img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon"> to small values (0.05) to avoid getting stuck in loops.</p>
+<p>Can try various <img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon"> decay schedules.</p>
+</section>
+<section id="components" class="level3">
+<h3 class="anchored" data-anchor-id="components">Components</h3>
+<p><strong>Replay Buffer</strong>:</p>
+<p>TODO</p>
+<ul>
+<li>Fix typos</li>
+<li>MC (on-policy) vs optimality (off-policy)</li>
+</ul>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>rl</category>
+  <category>reading group</category>
+  <category>dqn</category>
+  <category>atari</category>
+  <guid>https://treeinrandomforest.github.io/ml/posts/rl3-dqn/</guid>
+  <pubDate>Wed, 12 Aug 2026 00:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Reinforcement Learning Reading Group #2 - Prerequisites</title>
   <link>https://treeinrandomforest.github.io/ml/posts/rl2-qv/</link>
