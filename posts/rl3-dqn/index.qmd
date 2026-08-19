@@ -88,7 +88,7 @@ $$(s_0, a_0, s_1, r_0), (s_1, a_1, s_2, r_1), (s_2, a_2, s_3, r_2), \ldots$$
 
 These tuples are highly correlated which reduces the effective amount of information being collected. To break this correlation, one accumulates tuples from various trajectories into a buffer (the replay or experience replay buffer) of fixed size $N$. A batch of tuples is then sampled randomly which ensures that tuples from different trajectories are trained over in each batch.
 
-A subtle point: we are not approximating $Q^{\pi} \approx Q_{\theta}$. If we were, we would be on-policy i.e. we would need to collect tuples under the policy $\pi$, train $Q^{\theta}$ to approximate $Q^{\pi}$, improve the policy and then collect more tuples.
+A subtle point: we are not approximating $Q^{\pi} \approx Q_{\theta}$. If we were, we would be on-policy i.e. we would need to collect tuples under the policy $\pi$, train $Q_{\theta}$ to approximate $Q^{\pi}$, improve the policy and then collect more tuples.
 
 We are instead learning $Q^{*}$. This is independent of the data collection policy! It is by definition at least as good as any $Q^{\pi}$ i.e.
 
@@ -102,6 +102,8 @@ To learn $Q^{*}$, it doesn't matter what policy the data is collected under and 
 
 In general, the combination of function approximation (neural net in our case), bootstrapping (using $Q_{\theta}$ to define the target), and off-policy learning (buffer of tuples collected under different policies) can actually cause learning to become unstable where $Q_{\theta}(s,a) \rightarrow \infty$ in theory. In practice, these values can grow to unrealistic values but can also recover. This is known as the **deadly triad**. Small errors can compound rapidly e.g. see [paper](https://arxiv.org/pdf/1812.02648).
 
+## Implementation Notes
+
 ### Initial Environment
 
 Do all initial experiments with **Pong**. This is especially helpful for debugging.
@@ -112,7 +114,7 @@ Run multiple seeds - at least 3-5 per experiment.
 
 Use [Gymnasium](https://gymnasium.farama.org/v0.29.0/environments/atari/). [ale-py](https://pypi.org/project/ale-py/) has the games.
 
-## Hardware
+### Hardware
 
 NVIDIA 3090/4090 should be enough since env is CPU-bound. Ensure you have enough vCPUs available.
 
@@ -121,7 +123,7 @@ NVIDIA 3090/4090 should be enough since env is CPU-bound. Ensure you have enough
 
 The following is a non-exhaustive list of ablations:
 
-**Replay Buffer Size**: The replay buffer breaks correlations between tuples. Tuples are added to the buffer and old ones are evicted to ensure the buffer doesn't exceed a maximum size. As the buffer is made smaller, we approach a more online sampling procedure where all tuples are from recent episodes and are therefore, more correlated.
+**Replay Buffer Size**: As stated above, the replay buffer breaks correlations between tuples. Tuples are added to the buffer and old ones are evicted to ensure the buffer doesn't exceed a maximum size. As the buffer is made smaller, we approach a more online sampling procedure where all tuples are from recent episodes and are therefore, more correlated.
 
 Vary the buffer size e.g. 1, 100, 10000, 1M and observe the learning curves.
 
@@ -129,20 +131,14 @@ Vary the buffer size e.g. 1, 100, 10000, 1M and observe the learning curves.
 
 **Target Network Freezing**: Use the current $Q$ network to calculate the target. A more comprehensive experiment would change the freezing frequency from 1 (no freezing) to 10k (paper's value) to a much higher value.
 
-**$\varepsilon$**: 
+**$\varepsilon$**: To encourage exploration, a parameter $\varepsilon \in (0,1)$ is introduced. Usually it's chosen to be small e.g. $0.05$. With probability $\varepsilon$, a completely random action is chosen and with probability $1-\varepsilon$, the action chosen is $a_t = \argmax_{a_t} Q_{\theta}(s_t, a)$.
 
-During training, anneal $\varepsilon$ from high (e.g. 1.0 i.e. fully random policy) and linearly decay to small value (e.g. 0.05) over iterations.
+During training, $\varepsilon$ is annealed from high (e.g. 1.0 i.e. fully random policy) values to low (e.g. $0.05$) values with a linearly decaying schedule.
 
-During evaluation, fix $\varepsilon$ to small values (0.05) to avoid getting stuck in loops.
+During evaluation, $\varepsilon$ is fixed to small values (0.05) to avoid getting stuck in loops.
 
-Can try various $\varepsilon$ decay schedules.
+Can try various $\varepsilon$ decay schedules and also try keeping $\varepsilon = 0$.
 
 
-### Components
+### Paper details
 
-**Replay Buffer**:
-
-TODO
-
-- Fix typos
-- MC (on-policy) vs optimality (off-policy)
