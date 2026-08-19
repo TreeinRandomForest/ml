@@ -28,11 +28,11 @@ The optimal Q-value function satisfies:
 
 $$Q^{*}(s,a) = \mathbb{E}_{s'\sim p(\cdot \mid s,a)} [ r(s,a,s') + \gamma \max_{a'} Q^{*}(s',a')]$$
 
-We want to learn the optimal $Q^{*}(s,a)$. This quantity lets us pick optimal actions in any state $s$ by picking the action $a$ that maximizes $Q^{*}(s,a)$. In other words, knowing $Q^{*}$ defines a determinstic policy by $\pi(a\mid s) = \argmax_{a} Q^{*}(s,a)$ (as long as no two actions have exactly the same value for a given state). Note that the "max" is also an expectation under a determinstic policy. This can be seen as follows - the definition of expectation is:
+We want to learn the optimal $Q^{*}(s,a)$. This quantity lets us pick optimal actions in any state $s$ by picking the action $a$ that maximizes $Q^{*}(s,a)$. In other words, knowing $Q^{*}$ defines a deterministic policy by $\pi(a\mid s) = \argmax_{a} Q^{*}(s,a)$ (as long as no two actions have exactly the same value for a given state). Note that the "max" is also an expectation under a deterministic policy. This can be seen as follows - the definition of expectation is:
 
 $$\mathbb{E}_{a'\sim \pi} Q^{\pi}(s',a') = \Sigma_{a'} \pi(a'\mid s') Q^{\pi}(s',a')$$
 
-Under a determinstic policy, one $a'$ has probability 1 while the rest have probabilities 0 i.e.
+Under a deterministic policy, one $a'$ has probability 1 while the rest have probabilities 0 i.e.
 
 $$\mathbb{E}_{a'\sim \pi} Q^{\pi}(s',a') = \Sigma_{a'} \pi(a'\mid s') Q^{\pi}(s',a') = Q^{\pi}(s',\pi(s'))$$
 
