@@ -10,7 +10,82 @@
 <atom:link href="https://treeinrandomforest.github.io/ml/index.xml" rel="self" type="application/rss+xml"/>
 <description>Experiments with ML and Systems</description>
 <generator>quarto-1.10.18</generator>
-<lastBuildDate>Wed, 12 Aug 2026 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 31 Aug 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Monte Carlo Tree Search for Kernel Generation</title>
+  <link>https://treeinrandomforest.github.io/ml/posts/mcts-kernelgen/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="important-links" class="level1">
+<h1>Important Links</h1>
+<p><a href="https://github.com/lmzuccarelli/rust-cuda-kernel-rl">Luigi’s source repo</a></p>
+<p><a href="https://github.com/lmzuccarelli/rust-cuda-kernel-rl/blob/main/src/inference/prompts.rs#L281">List of optimization strategies</a></p>
+<p><a href="https://github.com/lmzuccarelli/rust-cuda-kernel-rl/blob/main/src/inference/prompts.rs#L391">List of performance states</a></p>
+</section>
+<section id="notes-on-applying-alphago-zeros-approach-to-kernel-generation" class="level1">
+<h1>Notes on applying AlphaGo Zero’s approach to Kernel Generation</h1>
+<p><a href="https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf">AlphaGo Zero Paper</a></p>
+<p><a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md">Spec file</a></p>
+<p>The Spec file describes decision in much more detail. This blog entry is a high-level summary.</p>
+<p>Monte Carlo Tree Search (MCTS) is a test-time compute strategy to find an optimal action.</p>
+<p>In two-player games, the state is the current board, actions are possible moves (i.e.&nbsp;legal moves) and the goal is to find the action that maximizes the probability of winning. The moves are deterministic. One does a full MCTS search (will be described in more detail but treat it as a black-box for now) for each move since the next move is made by the opponent. MCTS generates an asymmetric tree where each node is a board state, <img src="https://latex.codecogs.com/png.latex?s_t"> and each edge is a legal move that points the tail state (before the move) to the head state (after the move).</p>
+<p>GPU kernel generation is a single-player game. MCTS is carried out for each workload <a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#5-workload-contract">section 5</a> consisting of:</p>
+<ul>
+<li><p>Operation e.g.&nbsp;matrix multiplication</p></li>
+<li><p>Hardware e.g.&nbsp;H100 SXM</p></li>
+<li><p>dtype e.g.&nbsp;NVFP4</p></li>
+<li><p>Tensor shape constraints e.g.&nbsp;each dimension in <img src="https://latex.codecogs.com/png.latex?%5B1024,2048%5D">.</p></li>
+</ul>
+<p>The spec also includes other factors like:</p>
+<ul>
+<li><p>Tensor layouts e.g.&nbsp;row-major contiguous matrices, column-major, strided batched tensors, interleaved QKV layouts, packed low-precision formats etc.</p></li>
+<li><p>Numerical tolerances e.g.&nbsp;absolute (atol=<img src="https://latex.codecogs.com/png.latex?1e-6">) and relative (rtol=<img src="https://latex.codecogs.com/png.latex?1e-5">) for a given format e.g.&nbsp;FP32.</p></li>
+<li><p>Kernel launch parameters e.g.&nbsp;block and grid sizes, shared memory bytes.</p></li>
+<li><p>Distribution over shapes for dataset e.g.&nbsp;<img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BD%7D%20=%20%7B(4096,4096,4096):0.4,%20(8192,4096,4096):0.3,%20(128,4096,4096):0.2,%20(32,4096,4096):0.1%7D">. Note the reward will be an expectation over this distribution.</p></li>
+</ul>
+<p>The list might expand over time.</p>
+<section id="nodes" class="level4">
+<h4 class="anchored" data-anchor-id="nodes">Nodes</h4>
+<p>Each node (<a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#7-search-state--node-definition%5D%20of%20the%20spec">section 7</a>) is a specific GPU kernel version for the chosen workload. The initial focus is on CUDA C++. General interfaces defining <strong>backends</strong> can be extended to CuTeDSL and CUTLASS.</p>
+<p>Section 7 also declares a set of variables to be stored for each node. A subset is:</p>
+<ul>
+<li><p><strong>program_text</strong>: source code</p></li>
+<li><p><strong>backend_type</strong>: CUDA C++, CuTeDSL, CUTLASS</p></li>
+<li><p><strong>normalized_program_hash</strong> and <strong>binary_has_or_sass_hash</strong>: hashes of both the source code and generated SASS code. Hashes let us refer to previously computed results instead of re-evaluating performance of an already generated kernel. For more details, see <a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#21-deduplication">section 21</a>.</p></li>
+<li><p><strong>benchmark_results</strong>: performance results from running the node kernel version.</p></li>
+<li><p><strong>reward</strong>: numerical record of <img src="https://latex.codecogs.com/png.latex?Q(s,a)"> i.e.&nbsp;average reward achieved when passing through this node.</p></li>
+<li><p><strong>lightweight_profile</strong> and <strong>full_profile</strong>: statistics from running ncu.</p></li>
+<li><p>children/action statistics: priors, number of calls to each action etc.</p></li>
+<li><p><strong>created_by_strategy</strong>: record which action/strategy led to this node from its parent</p></li>
+<li><p><strong>created_by_llm_generation_id</strong>: log info about LLM session which consisted of parent node’s kernel code, strategy prompt and profile metrics which led to current node’s kernel.</p></li>
+</ul>
+</section>
+<section id="edges" class="level4">
+<h4 class="anchored" data-anchor-id="edges">Edges</h4>
+<p>An edge is a strategy/action. These prompts are stored in a config file for each backend (CUDA C++, CuTeDSL, CUTLASS).</p>
+<p>At a given node, the action with the maximum score <img src="https://latex.codecogs.com/png.latex?score(s,a)"> is chosen (<a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#9-strategy-priors">section 9</a>) where</p>
+<p><img src="https://latex.codecogs.com/png.latex?score(s,a)%20=%20Q_%7Bmean%7D(s,a)%20+%20c_%7Bpuct%7D%20P(s,a)%20%5Cfrac%7B%5Csqrt%20%7B%5CSigma_%7Bb%7D%20N(s,b)%7D%7D%7B1%20+%20N(s,a)%7D"></p>
+<p>This strategy is known as PUCT (Polynomial Upper Confidence Trees).</p>
+<p>Technical point: this defines the tree policy during the <strong>Expansion</strong> phase in MCTS. We don’t use rollouts here (neither does AlphaGo Zero; see <a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#15-no-rollouts">section 15</a>). At lead nodes, we profile and evaluate. AlphaGo Zero uses the value estimator at a leaf node instead of rolling out.</p>
+<p>The first-term in the score is a direct measure of the average reward achieved when one passes through this node. In other words, all the trajectories of applying optimizations that took action <img src="https://latex.codecogs.com/png.latex?a"> in the state <img src="https://latex.codecogs.com/png.latex?s"> will eventually achieve some reward (log speedup) and the average value of the rewards is the first term.</p>
+<p>The second-term encourages exploration even when the reward is low for a node. <img src="https://latex.codecogs.com/png.latex?c_%7Bpuct%7D"> is a hyperparameter that weights the relative terms. <img src="https://latex.codecogs.com/png.latex?P(s,a)"> is a prior probability assigned to each action <img src="https://latex.codecogs.com/png.latex?a"> for a given state <img src="https://latex.codecogs.com/png.latex?s">. This could be fixed by us (e.g.&nbsp;uniform prior) or generated by an LLM. <img src="https://latex.codecogs.com/png.latex?N(s,a)"> is the number of times action <img src="https://latex.codecogs.com/png.latex?a"> was taken in state <img src="https://latex.codecogs.com/png.latex?s">. The term $<img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B%5Csqrt%20%7B%5CSigma_%7Bb%7D%20N(s,b)%7D%7D%7B1%20+%20N(s,a)%7D"> effectively encourages taking an action <img src="https://latex.codecogs.com/png.latex?a"> that has a low visitation count <img src="https://latex.codecogs.com/png.latex?N(s,a)"> relative to the total number of visitations to the state <img src="https://latex.codecogs.com/png.latex?%5CSigma_b%20N(s,b)">.</p>
+<p>TBC</p>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>rl</category>
+  <category>mcts</category>
+  <category>gpu kernels</category>
+  <guid>https://treeinrandomforest.github.io/ml/posts/mcts-kernelgen/</guid>
+  <pubDate>Mon, 31 Aug 2026 00:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Reinforcement Learning Reading Group #3 - Deep Q-learning (DQN)</title>
   <link>https://treeinrandomforest.github.io/ml/posts/rl3-dqn/</link>

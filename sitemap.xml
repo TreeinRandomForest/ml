@@ -2,22 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://treeinrandomforest.github.io/ml/index.html</loc>
-    <lastmod>2026-08-19T20:11:21.331Z</lastmod>
+    <lastmod>2026-08-31T21:09:57.192Z</lastmod>
   </url>
   <url>
-    <loc>https://treeinrandomforest.github.io/ml/posts/rl2-qv/index.html</loc>
-    <lastmod>2026-08-19T20:11:21.332Z</lastmod>
-  </url>
-  <url>
-    <loc>https://treeinrandomforest.github.io/ml/posts/rl3-dqn/index.html</loc>
-    <lastmod>2026-08-19T20:11:21.332Z</lastmod>
+    <loc>https://treeinrandomforest.github.io/ml/posts/mcts-kernelgen/index.html</loc>
+    <lastmod>2026-08-31T21:09:57.193Z</lastmod>
   </url>
   <url>
     <loc>https://treeinrandomforest.github.io/ml/posts/rl1-intro/index.html</loc>
-    <lastmod>2026-08-19T20:11:21.332Z</lastmod>
+    <lastmod>2026-08-31T21:09:57.193Z</lastmod>
+  </url>
+  <url>
+    <loc>https://treeinrandomforest.github.io/ml/posts/rl3-dqn/index.html</loc>
+    <lastmod>2026-08-31T21:09:57.194Z</lastmod>
+  </url>
+  <url>
+    <loc>https://treeinrandomforest.github.io/ml/posts/rl2-qv/index.html</loc>
+    <lastmod>2026-08-31T21:09:57.194Z</lastmod>
   </url>
   <url>
     <loc>https://treeinrandomforest.github.io/ml/about.html</loc>
-    <lastmod>2026-08-19T20:11:21.331Z</lastmod>
+    <lastmod>2026-08-31T21:09:57.192Z</lastmod>
   </url>
 </urlset>

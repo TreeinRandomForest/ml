@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2026-08-31">
 
-<title>Discovery</title>
+<title>Monte Carlo Tree Search for Kernel Generation – Discovery</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -29,25 +30,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-e3adbaa939bcd423dddc8c8a834270b4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e3adbaa939bcd423dddc8c8a834270b4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -75,35 +74,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
@@ -135,17 +105,17 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="Discovery" href="index.xml" data-external="1"></head>
+<link rel="stylesheet" href="../../styles.css">
+</head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Discovery</span>
     </a>
   </div>
@@ -156,7 +126,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -179,170 +149,102 @@ window.Quarto = {
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
-      <h1 class="title">Discovery</h1>
-                      </div>
+    <div class="quarto-title column-body">
+      <h1 class="title">Monte Carlo Tree Search for Kernel Generation</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">rl</div>
+                <div class="quarto-category">mcts</div>
+                <div class="quarto-category">gpu kernels</div>
+              </div>
+                  </div>
   </div>
     
   
-  <div class="quarto-title-meta column-page-left">
+  <div class="quarto-title-meta">
 
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">August 31, 2026</p>
+      </div>
+    </div>
     
       
     </div>
     
   
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="YXRhcmk=">atari <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZHFu">dqn <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Z3B1JTIwa2VybmVscw==">gpu kernels <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bWN0cw==">mcts <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bWRw">mdp <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cS1mdW5jdGlvbg==">q-function <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cmVhZGluZyUyMGdyb3Vw">reading group <span class="quarto-category-count">(3)</span></div><div class="category" data-category="cmw=">rl <span class="quarto-category-count">(4)</span></div><div class="category" data-category="dmFsdWUlMjBmdW5jdGlvbg==">value function <span class="quarto-category-count">(1)</span></div></div></div>
+    
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
 
+<section id="important-links" class="level1">
+<h1>Important Links</h1>
+<p><a href="https://github.com/lmzuccarelli/rust-cuda-kernel-rl">Luigi’s source repo</a></p>
+<p><a href="https://github.com/lmzuccarelli/rust-cuda-kernel-rl/blob/main/src/inference/prompts.rs#L281">List of optimization strategies</a></p>
+<p><a href="https://github.com/lmzuccarelli/rust-cuda-kernel-rl/blob/main/src/inference/prompts.rs#L391">List of performance states</a></p>
+</section>
+<section id="notes-on-applying-alphago-zeros-approach-to-kernel-generation" class="level1">
+<h1>Notes on applying AlphaGo Zero’s approach to Kernel Generation</h1>
+<p><a href="https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf">AlphaGo Zero Paper</a></p>
+<p><a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md">Spec file</a></p>
+<p>The Spec file describes decision in much more detail. This blog entry is a high-level summary.</p>
+<p>Monte Carlo Tree Search (MCTS) is a test-time compute strategy to find an optimal action.</p>
+<p>In two-player games, the state is the current board, actions are possible moves (i.e.&nbsp;legal moves) and the goal is to find the action that maximizes the probability of winning. The moves are deterministic. One does a full MCTS search (will be described in more detail but treat it as a black-box for now) for each move since the next move is made by the opponent. MCTS generates an asymmetric tree where each node is a board state, <span class="math inline">\(s_t\)</span> and each edge is a legal move that points the tail state (before the move) to the head state (after the move).</p>
+<p>GPU kernel generation is a single-player game. MCTS is carried out for each workload <a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#5-workload-contract">section 5</a> consisting of:</p>
+<ul>
+<li><p>Operation e.g.&nbsp;matrix multiplication</p></li>
+<li><p>Hardware e.g.&nbsp;H100 SXM</p></li>
+<li><p>dtype e.g.&nbsp;NVFP4</p></li>
+<li><p>Tensor shape constraints e.g.&nbsp;each dimension in <span class="math inline">\([1024,2048]\)</span>.</p></li>
+</ul>
+<p>The spec also includes other factors like:</p>
+<ul>
+<li><p>Tensor layouts e.g.&nbsp;row-major contiguous matrices, column-major, strided batched tensors, interleaved QKV layouts, packed low-precision formats etc.</p></li>
+<li><p>Numerical tolerances e.g.&nbsp;absolute (atol=<span class="math inline">\(1e-6\)</span>) and relative (rtol=<span class="math inline">\(1e-5\)</span>) for a given format e.g.&nbsp;FP32.</p></li>
+<li><p>Kernel launch parameters e.g.&nbsp;block and grid sizes, shared memory bytes.</p></li>
+<li><p>Distribution over shapes for dataset e.g.&nbsp;<span class="math inline">\(\mathcal{D} = {(4096,4096,4096):0.4, (8192,4096,4096):0.3, (128,4096,4096):0.2, (32,4096,4096):0.1}\)</span>. Note the reward will be an expectation over this distribution.</p></li>
+</ul>
+<p>The list might expand over time.</p>
+<section id="nodes" class="level4">
+<h4 class="anchored" data-anchor-id="nodes">Nodes</h4>
+<p>Each node (<a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#7-search-state--node-definition%5D%20of%20the%20spec">section 7</a>) is a specific GPU kernel version for the chosen workload. The initial focus is on CUDA C++. General interfaces defining <strong>backends</strong> can be extended to CuTeDSL and CUTLASS.</p>
+<p>Section 7 also declares a set of variables to be stored for each node. A subset is:</p>
+<ul>
+<li><p><strong>program_text</strong>: source code</p></li>
+<li><p><strong>backend_type</strong>: CUDA C++, CuTeDSL, CUTLASS</p></li>
+<li><p><strong>normalized_program_hash</strong> and <strong>binary_has_or_sass_hash</strong>: hashes of both the source code and generated SASS code. Hashes let us refer to previously computed results instead of re-evaluating performance of an already generated kernel. For more details, see <a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#21-deduplication">section 21</a>.</p></li>
+<li><p><strong>benchmark_results</strong>: performance results from running the node kernel version.</p></li>
+<li><p><strong>reward</strong>: numerical record of <span class="math inline">\(Q(s,a)\)</span> i.e.&nbsp;average reward achieved when passing through this node.</p></li>
+<li><p><strong>lightweight_profile</strong> and <strong>full_profile</strong>: statistics from running ncu.</p></li>
+<li><p>children/action statistics: priors, number of calls to each action etc.</p></li>
+<li><p><strong>created_by_strategy</strong>: record which action/strategy led to this node from its parent</p></li>
+<li><p><strong>created_by_llm_generation_id</strong>: log info about LLM session which consisted of parent node’s kernel code, strategy prompt and profile metrics which led to current node’s kernel.</p></li>
+</ul>
+</section>
+<section id="edges" class="level4">
+<h4 class="anchored" data-anchor-id="edges">Edges</h4>
+<p>An edge is a strategy/action. These prompts are stored in a config file for each backend (CUDA C++, CuTeDSL, CUTLASS).</p>
+<p>At a given node, the action with the maximum score <span class="math inline">\(score(s,a)\)</span> is chosen (<a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#9-strategy-priors">section 9</a>) where</p>
+<p><span class="math display">\[score(s,a) = Q_{mean}(s,a) + c_{puct} P(s,a) \frac{\sqrt {\Sigma_{b} N(s,b)}}{1 + N(s,a)}\]</span></p>
+<p>This strategy is known as PUCT (Polynomial Upper Confidence Trees).</p>
+<p>Technical point: this defines the tree policy during the <strong>Expansion</strong> phase in MCTS. We don’t use rollouts here (neither does AlphaGo Zero; see <a href="https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#15-no-rollouts">section 15</a>). At lead nodes, we profile and evaluate. AlphaGo Zero uses the value estimator at a leaf node instead of rolling out.</p>
+<p>The first-term in the score is a direct measure of the average reward achieved when one passes through this node. In other words, all the trajectories of applying optimizations that took action <span class="math inline">\(a\)</span> in the state <span class="math inline">\(s\)</span> will eventually achieve some reward (log speedup) and the average value of the rewards is the first term.</p>
+<p>The second-term encourages exploration even when the reward is low for a node. <span class="math inline">\(c_{puct}\)</span> is a hyperparameter that weights the relative terms. <span class="math inline">\(P(s,a)\)</span> is a prior probability assigned to each action <span class="math inline">\(a\)</span> for a given state <span class="math inline">\(s\)</span>. This could be fixed by us (e.g.&nbsp;uniform prior) or generated by an LLM. <span class="math inline">\(N(s,a)\)</span> is the number of times action <span class="math inline">\(a\)</span> was taken in state <span class="math inline">\(s\)</span>. The term $<span class="math inline">\(\frac{\sqrt {\Sigma_{b} N(s,b)}}{1 + N(s,a)}\)</span> effectively encourages taking an action <span class="math inline">\(a\)</span> that has a low visitation count <span class="math inline">\(N(s,a)\)</span> relative to the total number of visitations to the state <span class="math inline">\(\Sigma_b N(s,b)\)</span>.</p>
+<p>TBC</p>
 
 
+</section>
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="cmwlMkNtY3RzJTJDZ3B1JTIwa2VybmVscw==" data-listing-date-sort="1788134400000" data-listing-file-modified-sort="1788210597193" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="683">
-<div class="thumbnail"><a href="./posts/mcts-kernelgen/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/mcts-kernelgen/index.html" class="no-external">Monte Carlo Tree Search for Kernel Generation</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmw='); return false;">rl</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bWN0cw=='); return false;">mcts</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('Z3B1JTIwa2VybmVscw=='); return false;">gpu kernels</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/mcts-kernelgen/index.html" class="no-external">
-Luigi’s source repo
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/mcts-kernelgen/index.html" class="no-external">
-<div class="listing-date">
-Aug 31, 2026
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="cmwlMkNyZWFkaW5nJTIwZ3JvdXAlMkNkcW4lMkNhdGFyaQ==" data-listing-date-sort="1786492800000" data-listing-file-modified-sort="1788210597194" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1519">
-<div class="thumbnail"><a href="./posts/rl3-dqn/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/rl3-dqn/index.html" class="no-external">Reinforcement Learning Reading Group #3 - Deep Q-learning (DQN)</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmw='); return false;">rl</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmVhZGluZyUyMGdyb3Vw'); return false;">reading group</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('ZHFu'); return false;">dqn</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('YXRhcmk='); return false;">atari</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/rl3-dqn/index.html" class="no-external">
-This article covers implementation notes for Deep Q-learning (DQN) on Atari as described in the original nature paper. The goal is to write down the distinct components and…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/rl3-dqn/index.html" class="no-external">
-<div class="listing-date">
-Aug 12, 2026
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="cmwlMkNyZWFkaW5nJTIwZ3JvdXAlMkNxLWZ1bmN0aW9uJTJDdmFsdWUlMjBmdW5jdGlvbg==" data-listing-date-sort="1779148800000" data-listing-file-modified-sort="1788210597194" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1333">
-<div class="thumbnail"><a href="./posts/rl2-qv/index.html" class="no-external">
-
-<p class="card-img-top"><img loading='lazy' src="posts/rl2-qv/images/sampling.svg"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/rl2-qv/index.html" class="no-external">Reinforcement Learning Reading Group #2 - Prerequisites</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmw='); return false;">rl</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmVhZGluZyUyMGdyb3Vw'); return false;">reading group</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cS1mdW5jdGlvbg=='); return false;">q-function</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('dmFsdWUlMjBmdW5jdGlvbg=='); return false;">value function</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/rl2-qv/index.html" class="no-external">
-<strong>IN PROGRESS</strong>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/rl2-qv/index.html" class="no-external">
-<div class="listing-date">
-May 19, 2026
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="cmwlMkNyZWFkaW5nJTIwZ3JvdXAlMkNtZHA=" data-listing-date-sort="1779062400000" data-listing-file-modified-sort="1788210597193" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1984">
-<div class="thumbnail"><a href="./posts/rl1-intro/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/rl1-intro/index.html" class="no-external">Reinforcement Learning Reading Group #1 - Prerequisites</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmw='); return false;">rl</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmVhZGluZyUyMGdyb3Vw'); return false;">reading group</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bWRw'); return false;">mdp</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/rl1-intro/index.html" class="no-external">
-This is hopefully the first of a series of write-ups for a group of engineers ramping up on RL. We will be reading papers and implementing a subset from the Spinning up RL li…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/rl1-intro/index.html" class="no-external">
-<div class="listing-date">
-May 18, 2026
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
