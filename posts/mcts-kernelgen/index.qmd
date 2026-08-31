@@ -1,0 +1,94 @@
+---
+title: "Monte Carlo Tree Search for Kernel Generation"
+date: "2026-08-31"
+categories: [rl, mcts, gpu kernels]
+---
+
+# Important Links
+
+[Luigi's source repo](https://github.com/lmzuccarelli/rust-cuda-kernel-rl)
+
+[List of optimization strategies](https://github.com/lmzuccarelli/rust-cuda-kernel-rl/blob/main/src/inference/prompts.rs#L281)
+
+[List of performance states](https://github.com/lmzuccarelli/rust-cuda-kernel-rl/blob/main/src/inference/prompts.rs#L391)
+
+
+
+# Notes on applying AlphaGo Zero's approach to Kernel Generation
+
+[AlphaGo Zero Paper](https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf)
+
+[Spec file](https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md)
+
+The Spec file describes decision in much more detail. This blog entry is a high-level summary.
+
+Monte Carlo Tree Search (MCTS) is a test-time compute strategy to find an optimal action.
+
+In two-player games, the state is the current board, actions are possible moves (i.e. legal moves) and the goal is to find the action that maximizes the probability of winning. The moves are deterministic. One does a full MCTS search (will be described in more detail but treat it as a black-box for now) for each move since the next move is made by the opponent. MCTS generates an asymmetric tree where each node is a board state, $s_t$ and each edge is a legal move that points the tail state (before the move) to the head state (after the move).
+
+GPU kernel generation is a single-player game. MCTS is carried out for each workload [section 5](https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#5-workload-contract) consisting of:
+
+* Operation e.g. matrix multiplication
+
+* Hardware e.g. H100 SXM
+
+* dtype e.g. NVFP4
+
+* Tensor shape constraints e.g. each dimension in $[1024,2048]$. 
+
+The spec also includes other factors like:
+
+* Tensor layouts e.g. row-major contiguous matrices, column-major, strided batched tensors, interleaved QKV layouts, packed low-precision formats etc.
+
+* Numerical tolerances e.g. absolute (atol=$1e-6$) and relative (rtol=$1e-5$) for a given format e.g. FP32.
+
+* Kernel launch parameters e.g. block and grid sizes, shared memory bytes.
+
+* Distribution over shapes for dataset e.g. $\mathcal{D} = {(4096,4096,4096):0.4, (8192,4096,4096):0.3, (128,4096,4096):0.2, (32,4096,4096):0.1}$. Note the reward will be an expectation over this distribution.
+
+The list might expand over time.
+
+
+#### Nodes
+
+Each node ([section 7](https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#7-search-state--node-definition] of the spec)) is a specific GPU kernel version for the chosen workload. The initial focus is on CUDA C++. General interfaces defining **backends** can be extended to CuTeDSL and CUTLASS.
+
+Section 7 also declares a set of variables to be stored for each node. A subset is:
+
+* **program_text**: source code
+
+* **backend_type**: CUDA C++, CuTeDSL, CUTLASS
+
+* **normalized_program_hash** and **binary_has_or_sass_hash**: hashes of both the source code and generated SASS code. Hashes let us refer to previously computed results instead of re-evaluating performance of an already generated kernel. For more details, see [section 21](https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#21-deduplication).
+
+* **benchmark_results**: performance results from running the node kernel version.
+
+* **reward**: numerical record of $Q(s,a)$ i.e. average reward achieved when passing through this node.
+
+* **lightweight_profile** and **full_profile**: statistics from running ncu.
+
+* children/action statistics: priors, number of calls to each action etc.
+
+* **created_by_strategy**: record which action/strategy led to this node from its parent
+
+* **created_by_llm_generation_id**: log info about LLM session which consisted of parent node's kernel code, strategy prompt and profile metrics which led to current node's kernel.
+
+#### Edges
+
+An edge is a strategy/action. These prompts are stored in a config file for each backend (CUDA C++, CuTeDSL, CUTLASS).
+
+At a given node, the action with the maximum score $score(s,a)$ is chosen ([section 9](https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#9-strategy-priors)) where
+
+$$score(s,a) = Q_{mean}(s,a) + c_{puct} P(s,a) \frac{\sqrt {\Sigma_{b} N(s,b)}}{1 + N(s,a)}$$
+
+This strategy is known as PUCT (Polynomial Upper Confidence Trees). 
+
+Technical point: this defines the tree policy during the **Expansion** phase in MCTS. We don't use rollouts here (neither does AlphaGo Zero; see [section 15](https://github.com/TreeinRandomForest/mcts/blob/master/mcts_stochastic_v1/spec.md#15-no-rollouts)). At lead nodes, we profile and evaluate. AlphaGo Zero uses the value estimator at a leaf node instead of rolling out.
+
+The first-term in the score is a direct measure of the average reward achieved when one passes through this node. In other words, all the trajectories of applying optimizations that took action $a$ in the state $s$ will eventually achieve some reward (log speedup) and the average value of the rewards is the first term. 
+
+The second-term encourages exploration even when the reward is low for a node. $c_{puct}$ is a hyperparameter that weights the relative terms. $P(s,a)$ is a prior probability assigned to each action $a$ for a given state $s$. This could be fixed by us (e.g. uniform prior) or generated by an LLM. $N(s,a)$ is the number of times action $a$ was taken in state $s$. The term $$\frac{\sqrt {\Sigma_{b} N(s,b)}}{1 + N(s,a)}$ effectively encourages taking an action $a$ that has a low visitation count $N(s,a)$ relative to the total number of visitations to the state $\Sigma_b N(s,b)$. 
+
+TBC
+
+
